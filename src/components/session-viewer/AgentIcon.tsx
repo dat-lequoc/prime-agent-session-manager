@@ -1,4 +1,6 @@
-import { ClaudeCode, Codex, GeminiCLI, OpenCode } from "@lobehub/icons";
+import ClaudeCodeColor from "@lobehub/icons/es/ClaudeCode/components/Color";
+import CodexColor from "@lobehub/icons/es/Codex/components/Color";
+import GeminiCLIColor from "@lobehub/icons/es/GeminiCLI/components/Color";
 import { Bot, Boxes, Orbit, Sparkles } from "lucide-react";
 import type { CSSProperties, SVGProps } from "react";
 
@@ -222,15 +224,18 @@ export function getAgentIconColor(source: string): string {
     case "pi":
     case "pi-agent":
       return "#0A0A0A";
+    case "prime":
+    case "prime-agent":
+      return "#8B5CF6";
     case "omp":
     case "oh-my-pi":
       return "#EA580C";
     case "claude-code":
-      return ClaudeCode.colorPrimary;
+      return "#D97757";
     case "codex":
       return "#7A9DFF";
     case "opencode":
-      return OpenCode.colorPrimary;
+      return "#000000";
     case "gemini":
     case "gemini-cli":
       return "#207CFE";
@@ -258,6 +263,9 @@ export function AgentIcon({
   const iconProps = { className, size, style } as const;
 
   switch (normalized) {
+    case "prime":
+    case "prime-agent":
+      return <Orbit className={className} size={size} style={style} />;
     case "pi":
     case "pi-agent":
       return <PiMono {...iconProps} />;
@@ -297,6 +305,9 @@ export function AgentColorIcon({
   const iconProps = { className, size, style } as const;
 
   switch (normalized) {
+    case "prime":
+    case "prime-agent":
+      return <Orbit className={className} size={size} style={style} />;
     case "pi":
     case "pi-agent":
       return <PiColor {...iconProps} />;
@@ -304,14 +315,14 @@ export function AgentColorIcon({
     case "oh-my-pi":
       return <OmpColor {...iconProps} />;
     case "claude-code":
-      return <ClaudeCode.Color {...iconProps} />;
+      return <ClaudeCodeColor {...iconProps} />;
     case "codex":
-      return <Codex.Color {...iconProps} />;
+      return <CodexColor {...iconProps} />;
     case "opencode":
-      return <OpenCode {...iconProps} />;
+      return <OpenCodeMono {...iconProps} />;
     case "gemini":
     case "gemini-cli":
-      return <GeminiCLI.Color {...iconProps} />;
+      return <GeminiCLIColor {...iconProps} />;
     case "factory":
       return <Boxes className={className} size={size} style={style} />;
     case "clawdbot":

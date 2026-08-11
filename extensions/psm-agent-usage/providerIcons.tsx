@@ -1,19 +1,17 @@
 import type { ComponentType, CSSProperties, SVGProps } from 'react'
-import {
-  Amp,
-  Antigravity,
-  ClaudeCode,
-  Codex,
-  Copilot,
-  Cursor,
-  Devin,
-  Grok,
-  Kimi,
-  Minimax,
-  OpenCode,
-  OpenRouter,
-  Zhipu,
-} from '@lobehub/icons'
+import Amp from '@lobehub/icons/es/Amp/components/Mono'
+import Antigravity from '@lobehub/icons/es/Antigravity/components/Mono'
+import ClaudeCode from '@lobehub/icons/es/ClaudeCode/components/Mono'
+import Codex from '@lobehub/icons/es/Codex/components/Mono'
+import Copilot from '@lobehub/icons/es/Copilot/components/Mono'
+import Cursor from '@lobehub/icons/es/Cursor/components/Mono'
+import Devin from '@lobehub/icons/es/Devin/components/Mono'
+import Grok from '@lobehub/icons/es/Grok/components/Mono'
+import Kimi from '@lobehub/icons/es/Kimi/components/Mono'
+import Minimax from '@lobehub/icons/es/Minimax/components/Mono'
+import OpenCode from '@lobehub/icons/es/OpenCode/components/Mono'
+import OpenRouter from '@lobehub/icons/es/OpenRouter/components/Mono'
+import Zhipu from '@lobehub/icons/es/Zhipu/components/Mono'
 import { Bot } from 'lucide-react'
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement> & {

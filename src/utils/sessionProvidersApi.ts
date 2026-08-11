@@ -13,6 +13,11 @@ interface RawSessionProviderInfo {
 
 const FALLBACK_PROVIDERS: SessionProviderInfo[] = [
   {
+    slug: "prime-agent",
+    display_name: "Prime Agent",
+    capabilities: { canScan: true, canConvertTarget: false },
+  },
+  {
     slug: "pi",
     display_name: "Pi",
     capabilities: { canScan: true, canConvertTarget: true },
@@ -66,6 +71,7 @@ const FALLBACK_PROVIDERS: SessionProviderInfo[] = [
 
 function normalizeProviderSlug(value: string): SessionConvertTarget | null {
   switch (value) {
+    case "prime-agent":
     case "pi":
     case "omp":
     case "claude-code":

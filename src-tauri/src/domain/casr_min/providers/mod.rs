@@ -8,6 +8,7 @@ pub mod gemini;
 pub mod omp_agent;
 pub mod opencode;
 pub mod pi_agent;
+pub mod prime_agent;
 
 use std::path::{Path, PathBuf};
 
@@ -15,6 +16,7 @@ use crate::domain::casr_min::model::CanonicalSession;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProviderKind {
+    PrimeAgent,
     Pi,
     Omp,
     ClaudeCode,
@@ -28,10 +30,11 @@ pub enum ProviderKind {
 }
 
 impl ProviderKind {
-    pub const ALL: [Self; 10] = [Self::Pi, Self::Omp, Self::ClaudeCode, Self::Codex, Self::OpenCode, Self::Gemini, Self::Factory, Self::ClawdBot, Self::Cursor, Self::Antigravity];
+    pub const ALL: [Self; 11] = [Self::PrimeAgent, Self::Pi, Self::Omp, Self::ClaudeCode, Self::Codex, Self::OpenCode, Self::Gemini, Self::Factory, Self::ClawdBot, Self::Cursor, Self::Antigravity];
 
     pub fn slug(self) -> &'static str {
         match self {
+            Self::PrimeAgent => "prime_agent",
             Self::Pi => "pi",
             Self::Omp => "omp",
             Self::ClaudeCode => "claude_code",
@@ -47,6 +50,7 @@ impl ProviderKind {
 
     pub fn display_name(self) -> &'static str {
         match self {
+            Self::PrimeAgent => "Prime Agent",
             Self::Pi => "Pi",
             Self::Omp => "OMP",
             Self::ClaudeCode => "Claude Code",
@@ -65,12 +69,13 @@ impl ProviderKind {
     }
 
     pub fn can_convert_target(self) -> bool {
-        !matches!(self, Self::Cursor | Self::Antigravity)
+        !matches!(self, Self::PrimeAgent | Self::Cursor | Self::Antigravity)
     }
 
     pub fn parse_alias(value: &str) -> Result<Self, String> {
         let normalized = value.trim().to_ascii_lowercase().replace('_', "-");
         match normalized.as_str() {
+            "prime" | "prime-agent" => Ok(Self::PrimeAgent),
             "pi" | "pi-agent" => Ok(Self::Pi),
             "omp" | "oh-my-pi" => Ok(Self::Omp),
             "claude" | "claude-code" | "cc" => Ok(Self::ClaudeCode),
@@ -87,6 +92,7 @@ impl ProviderKind {
 
     pub fn session_roots(self) -> Vec<PathBuf> {
         match self {
+            Self::PrimeAgent => prime_agent::session_roots(),
             Self::Pi => pi_agent::session_roots(),
             Self::Omp => omp_agent::session_roots(),
             Self::ClaudeCode => claude_code::session_roots(),
@@ -103,6 +109,7 @@ impl ProviderKind {
     pub fn matches_path(self, path: &Path) -> bool {
         let normalized = path.to_string_lossy().replace('\\', "/");
         match self {
+            Self::PrimeAgent => crate::domain::prime_session::is_prime_root_session_path(path),
             Self::Pi => crate::paths::pi_agent_sessions_dir().ok().map(|path| path.to_string_lossy().replace('\\', "/")).is_some_and(|root| normalized.contains(&root)),
             Self::Omp => crate::paths::omp_agent_sessions_dir().ok().map(|path| path.to_string_lossy().replace('\\', "/")).is_some_and(|root| normalized.contains(&root)),
             Self::ClaudeCode => normalized.contains("/.claude/projects/"),
@@ -118,6 +125,7 @@ impl ProviderKind {
 
     pub fn read_session(self, path: &Path) -> Result<CanonicalSession, String> {
         match self {
+            Self::PrimeAgent => prime_agent::read_session(path),
             Self::Pi => pi_agent::read_session(path),
             Self::Omp => omp_agent::read_session(path),
             Self::ClaudeCode => claude_code::read_session(path),
@@ -133,6 +141,7 @@ impl ProviderKind {
 
     pub fn read_session_from_str(self, path_hint: &Path, content: &str) -> Result<CanonicalSession, String> {
         match self {
+            Self::PrimeAgent => prime_agent::read_session_from_str(path_hint, content),
             Self::Pi => pi_agent::read_session_from_str(path_hint, content),
             Self::Omp => omp_agent::read_session_from_str(path_hint, content),
             Self::ClaudeCode => claude_code::read_session_from_str(path_hint, content),
@@ -148,6 +157,7 @@ impl ProviderKind {
 
     pub fn write_preview(self, session: &CanonicalSession, target_session_id: &str) -> Result<String, String> {
         match self {
+            Self::PrimeAgent => prime_agent::render_session(session, target_session_id),
             Self::Pi => pi_agent::render_session(session, target_session_id),
             Self::Omp => omp_agent::render_session(session, target_session_id),
             Self::ClaudeCode => claude_code::render_session(session, target_session_id),
@@ -163,6 +173,7 @@ impl ProviderKind {
 
     pub fn build_target_path(self, session: &CanonicalSession, target_session_id: &str, now: chrono::DateTime<chrono::Utc>) -> Result<PathBuf, String> {
         match self {
+            Self::PrimeAgent => prime_agent::build_target_path(session, target_session_id, now),
             Self::Pi => pi_agent::build_target_path(target_session_id, now),
             Self::Omp => omp_agent::build_target_path(target_session_id, now),
             Self::ClaudeCode => claude_code::build_target_path(session, target_session_id),
@@ -178,6 +189,7 @@ impl ProviderKind {
 
     pub fn resume_command(self, target_session_id: &str, target_path: &Path) -> String {
         match self {
+            Self::PrimeAgent => prime_agent::resume_command(target_path),
             Self::Pi => pi_agent::resume_command(target_path),
             Self::Omp => omp_agent::resume_command(target_path),
             Self::ClaudeCode => claude_code::resume_command(target_session_id),
@@ -195,7 +207,7 @@ impl ProviderKind {
         match self {
             Self::OpenCode => opencode::backing_store_path(path),
             Self::Cursor => cursor::backing_store_path(path),
-            Self::Pi | Self::Omp | Self::ClaudeCode | Self::Codex | Self::Gemini | Self::Factory | Self::ClawdBot | Self::Antigravity => path.to_path_buf(),
+            Self::PrimeAgent | Self::Pi | Self::Omp | Self::ClaudeCode | Self::Codex | Self::Gemini | Self::Factory | Self::ClawdBot | Self::Antigravity => path.to_path_buf(),
         }
     }
 }
@@ -203,7 +215,7 @@ impl ProviderKind {
 pub fn detect_provider(path_hint: Option<&Path>, content: &str) -> Option<ProviderKind> {
     if let Some(path) = path_hint {
         // Prefer path-specific detectors before content heuristics.
-        for provider in [ProviderKind::Antigravity, ProviderKind::Cursor, ProviderKind::Pi, ProviderKind::Omp, ProviderKind::ClaudeCode, ProviderKind::Codex, ProviderKind::OpenCode, ProviderKind::Gemini, ProviderKind::Factory, ProviderKind::ClawdBot] {
+        for provider in [ProviderKind::Antigravity, ProviderKind::Cursor, ProviderKind::PrimeAgent, ProviderKind::Pi, ProviderKind::Omp, ProviderKind::ClaudeCode, ProviderKind::Codex, ProviderKind::OpenCode, ProviderKind::Gemini, ProviderKind::Factory, ProviderKind::ClawdBot] {
             if provider.matches_path(path) {
                 return Some(provider);
             }

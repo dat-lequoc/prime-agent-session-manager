@@ -108,6 +108,8 @@ jobs:
           workspaces: ". -> target"
           shared-key: check-${{ matrix.target }}
           cache-on-failure: true
+          # The Linux check target exhausts the hosted runner during post-job cache cleanup.
+          save-if: ${{ matrix.platform != 'ubuntu-22.04' }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6

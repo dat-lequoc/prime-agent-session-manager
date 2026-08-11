@@ -6,7 +6,7 @@ export const onboarding = {
   steps: {
     welcome: {
       title: 'Welcome to Prime Agent Session Manager',
-      description: 'A powerful tool for browsing, searching, and managing your Pi AI coding sessions. Let\'s take a quick tour of the key features.',
+      description: 'A local-first workbench for Prime Agent and your other coding-agent sessions. Let\'s take a quick tour of the key features.',
     },
     browse: {
       title: 'Browse Sessions by Project',

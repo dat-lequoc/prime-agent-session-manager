@@ -118,7 +118,7 @@ function filterSessionsForExternalAnalytics(
   }
   return sessions.filter((session) => {
     const slug = getSessionSourceSlug(session.path);
-    return !slug || slug === "pi";
+    return !slug || slug === "pi" || slug === "prime-agent";
   });
 }
 
@@ -144,7 +144,7 @@ export const backendSessionProvider: SessionProvider = {
   async loadSessions() {
     const [scanned, live] = await Promise.all([
       invoke<SessionInfo[]>("scan_sessions"),
-      invoke<any[]>("get_pi_live_sessions"),
+      invoke<any[]>("get_pi_live_sessions").catch(() => []),
     ]);
     return mergeBackendLiveSessions(scanned, live);
   },

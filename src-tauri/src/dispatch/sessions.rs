@@ -15,6 +15,7 @@ pub(super) const COMMANDS: &[&str] = &[
     "get_session_entries",
     "get_session_entry_window",
     "get_session_labels",
+    "get_prime_session_bundle",
     "detect_session_format",
     "list_supported_session_providers",
     "convert_session_format",
@@ -127,6 +128,11 @@ pub(super) async fn dispatch(app_state: &Option<DispatchAppState>, command: &str
                     let path = extract(payload, "path")?;
                     let result = crate::get_session_labels(path).await?;
                     Ok(to_val(result, "serialize result")?)
+                }
+                "get_prime_session_bundle" => {
+                    let root_path = extract_optional_string(payload, "root_path").or_else(|| extract_optional_string(payload, "rootPath")).ok_or_else(|| "Missing field: rootPath".to_string())?;
+                    let result = crate::get_prime_session_bundle(root_path).await?;
+                    Ok(to_val(result, "serialize Prime session bundle")?)
                 }
                 "detect_session_format" => {
                     let path = extract(payload, "path")?;

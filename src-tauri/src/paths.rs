@@ -161,6 +161,18 @@ pub fn pi_agent_sessions_dir() -> Result<PathBuf, String> {
     Ok(pi_agent_root_dir()?.join("sessions"))
 }
 
+pub fn prime_agent_root_dir() -> Result<PathBuf, String> {
+    Ok(home_dir()?.join(".prime").join("agent"))
+}
+
+pub fn prime_agent_sessions_dir() -> Result<PathBuf, String> {
+    Ok(prime_agent_root_dir()?.join("sessions"))
+}
+
+pub fn prime_agent_session_artifacts_dir() -> Result<PathBuf, String> {
+    Ok(prime_agent_root_dir()?.join("session-artifacts"))
+}
+
 pub fn pi_agent_settings_path() -> Result<PathBuf, String> {
     Ok(pi_agent_root_dir()?.join("settings.json"))
 }

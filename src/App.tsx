@@ -61,6 +61,7 @@ import { getPathBasename, pathsEqual } from "./utils/path";
 import {
   buildPiResumeCommand,
   buildOmpResumeCommand,
+  buildPrimeResumeCommand,
   buildPiForkCommand,
   buildCopyResumeCommandForTarget,
   buildChangeDirAndRun,
@@ -547,6 +548,9 @@ function App() {
 
   const buildResumeCommand = useCallback(
     (session: SessionInfo) => {
+      if (getSessionSourceSlug(session.path) === "prime-agent") {
+        return buildPrimeResumeCommand(session);
+      }
       if (getSessionSourceSlug(session.path) === "omp") {
         return buildOmpResumeCommand(session, { resumeCommand });
       }
@@ -595,6 +599,15 @@ function App() {
   const handleResumeSessionWithTarget = useCallback(
     async (session: SessionInfo, target: SessionConvertTarget) => {
       const sourceSlug = getSessionSourceSlug(session.path);
+      if (sourceSlug === "prime-agent") {
+        await openResumeCommandInTerminal(
+          session.path,
+          session.cwd,
+          buildPrimeResumeCommand(session),
+          getTerminalScopeForSession(session),
+        );
+        return;
+      }
       if ((!sourceSlug || sourceSlug === "pi") && target === "pi") {
         const command = isTauri() ? null : buildResumeCommand(session);
         await openResumeCommandInTerminal(
@@ -638,6 +651,11 @@ function App() {
 
   const requestResumeSession = useCallback(
     async (session: SessionInfo) => {
+      if (getSessionSourceSlug(session.path) === "prime-agent") {
+        navigateToSession(session.id);
+        await handleResumeSessionWithTarget(session, "prime-agent");
+        return;
+      }
       const configuredTarget = getConfiguredExternalResumeTarget();
       navigateToSession(session.id);
       if (!configuredTarget) {
@@ -647,7 +665,7 @@ function App() {
       }
       await handleResumeSessionWithTarget(session, configuredTarget);
     },
-    [handleResumeSessionWithTarget],
+    [handleResumeSessionWithTarget, navigateToSession],
   );
 
   const handleCopyResumeCommandWithTarget = useCallback(
@@ -663,6 +681,11 @@ function App() {
 
   const requestCopyResumeCommand = useCallback(
     async (session: SessionInfo) => {
+      if (getSessionSourceSlug(session.path) === "prime-agent") {
+        navigateToSession(session.id);
+        await copyText(buildPrimeResumeCommand(session));
+        return;
+      }
       const configuredTarget = getConfiguredExternalResumeTarget();
       navigateToSession(session.id);
       if (!configuredTarget) {
@@ -672,7 +695,7 @@ function App() {
       }
       await handleCopyResumeCommandWithTarget(session, configuredTarget);
     },
-    [handleCopyResumeCommandWithTarget],
+    [copyText, handleCopyResumeCommandWithTarget, navigateToSession],
   );
 
   const handleNewSession = useCallback(

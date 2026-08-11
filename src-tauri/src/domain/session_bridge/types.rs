@@ -7,6 +7,7 @@ use crate::domain::casr_min::providers::ProviderKind;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SessionBridgeSource {
+    PrimeAgent,
     Pi,
     Omp,
     ClaudeCode,
@@ -20,10 +21,11 @@ pub enum SessionBridgeSource {
 }
 
 impl SessionBridgeSource {
-    pub const ALL: [Self; 10] = [Self::Pi, Self::Omp, Self::ClaudeCode, Self::Codex, Self::OpenCode, Self::Gemini, Self::Factory, Self::ClawdBot, Self::Cursor, Self::Antigravity];
+    pub const ALL: [Self; 11] = [Self::PrimeAgent, Self::Pi, Self::Omp, Self::ClaudeCode, Self::Codex, Self::OpenCode, Self::Gemini, Self::Factory, Self::ClawdBot, Self::Cursor, Self::Antigravity];
 
     pub fn slug(self) -> &'static str {
         match self {
+            Self::PrimeAgent => "prime_agent",
             Self::Pi => "pi",
             Self::Omp => "omp",
             Self::ClaudeCode => "claude_code",
@@ -39,6 +41,7 @@ impl SessionBridgeSource {
 
     pub fn display_name(self) -> &'static str {
         match self {
+            Self::PrimeAgent => "Prime Agent",
             Self::Pi => "Pi",
             Self::Omp => "OMP",
             Self::ClaudeCode => "Claude Code",
@@ -54,6 +57,7 @@ impl SessionBridgeSource {
 
     pub fn session_roots(self) -> Vec<PathBuf> {
         match self {
+            Self::PrimeAgent => crate::paths::prime_agent_sessions_dir().ok().filter(|path| path.is_dir()).map(|path| vec![path]).unwrap_or_default(),
             Self::Pi => crate::paths::pi_agent_sessions_dir().ok().filter(|path| path.is_dir()).map(|path| vec![path]).unwrap_or_default(),
             Self::Omp => crate::paths::omp_agent_sessions_dir().ok().filter(|path| path.is_dir()).map(|path| vec![path]).unwrap_or_default(),
             Self::ClaudeCode => crate::domain::casr_min::providers::claude_code::session_roots(),
@@ -70,6 +74,7 @@ impl SessionBridgeSource {
     pub fn matches_path(self, path: &Path) -> bool {
         let normalized = path.to_string_lossy().replace('\\', "/");
         match self {
+            Self::PrimeAgent => crate::domain::prime_session::is_prime_root_session_path(path),
             Self::Pi => crate::paths::pi_agent_sessions_dir().ok().map(|path| path.to_string_lossy().replace('\\', "/")).is_some_and(|root| normalized.contains(&root)),
             Self::Omp => crate::paths::omp_agent_sessions_dir().ok().map(|path| path.to_string_lossy().replace('\\', "/")).is_some_and(|root| normalized.contains(&root)),
             Self::ClaudeCode => normalized.contains("/.claude/projects/"),
@@ -85,6 +90,7 @@ impl SessionBridgeSource {
 
     pub fn parse_alias(value: &str) -> Result<Self, String> {
         match value.trim().replace('_', "-").to_ascii_lowercase().as_str() {
+            "prime" | "prime-agent" => Ok(Self::PrimeAgent),
             "pi" => Ok(Self::Pi),
             "omp" | "oh-my-pi" => Ok(Self::Omp),
             "claude-code" | "claudecode" | "cc" => Ok(Self::ClaudeCode),
@@ -104,13 +110,14 @@ impl SessionBridgeSource {
     }
 
     pub fn can_convert_target(self) -> bool {
-        !matches!(self, Self::Cursor | Self::Antigravity)
+        !matches!(self, Self::PrimeAgent | Self::Cursor | Self::Antigravity)
     }
 }
 
 impl From<SessionBridgeSource> for ProviderKind {
     fn from(value: SessionBridgeSource) -> Self {
         match value {
+            SessionBridgeSource::PrimeAgent => ProviderKind::PrimeAgent,
             SessionBridgeSource::Pi => ProviderKind::Pi,
             SessionBridgeSource::Omp => ProviderKind::Omp,
             SessionBridgeSource::ClaudeCode => ProviderKind::ClaudeCode,
@@ -128,6 +135,7 @@ impl From<SessionBridgeSource> for ProviderKind {
 impl From<ProviderKind> for SessionBridgeSource {
     fn from(value: ProviderKind) -> Self {
         match value {
+            ProviderKind::PrimeAgent => SessionBridgeSource::PrimeAgent,
             ProviderKind::Pi => SessionBridgeSource::Pi,
             ProviderKind::Omp => SessionBridgeSource::Omp,
             ProviderKind::ClaudeCode => SessionBridgeSource::ClaudeCode,

@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { buildCopyResumeCommand } from "@/utils/sessionResume";
+import { getSessionSourceSlug } from "@/utils/session";
 
 import {
   SessionViewProvider,
@@ -38,6 +39,8 @@ import type {
   PsmSessionToolRevealOptions,
   PsmSessionViewerController,
 } from "@pi-session-manager/plugin-sdk";
+
+const PrimeSessionOverview = lazy(() => import("./prime/PrimeSessionOverview"));
 
 interface SessionViewerProps {
   session: SessionInfo;
@@ -154,6 +157,7 @@ function SessionViewerContent({
     closeSystemPromptDialog,
   } = useSessionViewerPanelController();
   const hasMainView = Boolean(mainViewSlot);
+  const isPrimeSession = getSessionSourceSlug(session.path) === "prime-agent";
 
   const sessionDataIsAtBottomRef = useRef(true);
   const messagesRef = useRef<SessionViewerMessagesRef>(null);
@@ -442,6 +446,11 @@ function SessionViewerContent({
       session={session}
       entries={entries}
       toolbarProps={toolbarProps}
+      primeOverview={isPrimeSession && !previewMode ? (
+        <Suspense fallback={<div className="border-b border-border px-3 py-2 text-[10px] text-muted-foreground">Loading Prime runtime…</div>}>
+          <PrimeSessionOverview rootPath={session.path} />
+        </Suspense>
+      ) : undefined}
       layoutSlots={layoutSlots}
       mainViewSlot={mainViewSlot}
       forkedFromLabel={t("session.forkedFrom")}

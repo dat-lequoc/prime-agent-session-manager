@@ -1,4 +1,4 @@
-import type { SessionEntry, LegacySessionStats, Content, Message } from '@/types'
+import type { SessionEntry, LegacySessionStats, Content, Message, TokenUsage } from '@/types'
 import { parseQuotedQuery } from './search'
 import { applySessionEntryTransformers } from '@/plugins/runtime-host/sessionEntryTransformers'
 
@@ -55,7 +55,7 @@ export function parseSessionEntriesWithLineCount(jsonlContent: string): {
           entries.push(normalized)
         }
 
-        return { entries: applySessionEntryTransformers(groupProviderAssistantFragments(entries)), lineCount: rawItems.length }
+        return { entries: applyPrimeUsageAttribution(applySessionEntryTransformers(groupProviderAssistantFragments(entries))), lineCount: rawItems.length }
       }
     } catch {
       // Fall through to line-based parsing.
@@ -102,7 +102,32 @@ export function parseSessionEntriesWithLineCount(jsonlContent: string): {
     }
   }
 
-  return { entries: applySessionEntryTransformers(groupProviderAssistantFragments(entries)), lineCount }
+  return { entries: applyPrimeUsageAttribution(applySessionEntryTransformers(groupProviderAssistantFragments(entries))), lineCount }
+}
+
+function applyPrimeUsageAttribution(entries: SessionEntry[]): SessionEntry[] {
+  const assistantIds = new Set(
+    entries
+      .filter(entry => entry.type === 'message' && entry.message?.role === 'assistant')
+      .map(entry => entry.id),
+  )
+  const latestAggregates = new Map<string, TokenUsage>()
+  for (const entry of entries) {
+    if (
+      entry.type === 'child_usage_attributed'
+      && entry.targetId
+      && assistantIds.has(entry.targetId)
+      && entry.aggregateUsage
+    ) {
+      latestAggregates.set(entry.targetId, entry.aggregateUsage)
+    }
+  }
+  if (latestAggregates.size === 0) return entries
+  return entries.map(entry => {
+    const aggregate = latestAggregates.get(entry.id)
+    if (!aggregate || !entry.message) return entry
+    return { ...entry, message: { ...entry.message, usage: aggregate } }
+  })
 }
 
 /**
@@ -247,6 +272,11 @@ function normalizeSessionEntry(raw: any): SessionEntry | null {
     type === 'custom_message' ||
     type === 'compaction' ||
     type === 'branch_summary' ||
+    type === 'agent_status' ||
+    type === 'child_usage_attributed' ||
+    type === 'session_state' ||
+    type === 'service_tier_change' ||
+    type === 'git_state' ||
     type === 'label'
   ) {
     return raw as SessionEntry
@@ -897,6 +927,8 @@ export function getSessionSourceTag(sessionPath: string): string | null {
   if (!slug) return null
 
   switch (slug) {
+    case 'prime-agent':
+      return 'Prime Agent'
     case 'pi':
       return 'Pi'
     case 'omp':
@@ -926,6 +958,10 @@ export function getSessionSourceSlug(sessionPath: string): string | null {
   if (!sessionPath) return null
 
   const normalized = sessionPath.replace(/\\/g, '/')
+
+  if (normalized.includes('/.prime/agent/sessions')) {
+    return 'prime-agent'
+  }
 
   if (normalized.includes('/.pi/agent/sessions')) {
     return 'pi'

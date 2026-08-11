@@ -4,12 +4,15 @@ import { readToolPlugin } from './read'
 import { writeToolPlugin } from './write'
 import { editToolPlugin } from './edit'
 import { genericToolPlugin } from './generic'
+import { ipythonToolPlugin } from './ipython'
+import type { ToolRenderPlugin } from '@/plugins/tools-render/types'
 
 /**
  * Core built-in tool plugins
  * Simple, stable tools: bash, read, write, edit, generic
  */
-const BUILTIN_PLUGINS = [
+const BUILTIN_PLUGINS: ToolRenderPlugin<any>[] = [
+  ipythonToolPlugin,
   bashToolPlugin,
   readToolPlugin,
   writeToolPlugin,
@@ -42,4 +45,5 @@ export {
   writeToolPlugin,
   editToolPlugin,
   genericToolPlugin,
+  ipythonToolPlugin,
 }

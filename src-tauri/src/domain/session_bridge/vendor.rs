@@ -12,7 +12,7 @@ fn registry() -> ProviderRegistry {
 
 fn casr_slug_from_target(target: SessionBridgeSource) -> &'static str {
     match target {
-        SessionBridgeSource::Pi | SessionBridgeSource::Omp => "pi-agent",
+        SessionBridgeSource::PrimeAgent | SessionBridgeSource::Pi | SessionBridgeSource::Omp => "pi-agent",
         SessionBridgeSource::ClaudeCode => "claude-code",
         SessionBridgeSource::Codex => "codex",
         SessionBridgeSource::OpenCode => "opencode",
@@ -27,6 +27,7 @@ fn casr_slug_from_target(target: SessionBridgeSource) -> &'static str {
 
 fn session_bridge_source_from_casr_slug(slug: &str) -> Result<SessionBridgeSource, String> {
     match slug {
+        "prime-agent" | "prime" => Ok(SessionBridgeSource::PrimeAgent),
         "pi-agent" | "pi" => Ok(SessionBridgeSource::Pi),
         "omp" => Ok(SessionBridgeSource::Omp),
         "claude-code" => Ok(SessionBridgeSource::ClaudeCode),

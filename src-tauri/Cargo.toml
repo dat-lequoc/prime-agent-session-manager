@@ -9,6 +9,11 @@ name = "pi-session-manager"
 path = "src/main.rs"
 required-features = ["gui"]
 
+[[bin]]
+name = "prime-agent-session-manager-cli"
+path = "src/main-cli.rs"
+required-features = ["cli"]
+
 [build-dependencies]
 tauri-build = { version = "2.5.5", features = [] }
 
@@ -38,6 +43,7 @@ toml = "0.8"
 notify = "6.1"
 notify-debouncer-full = "0.3"
 tokio-tungstenite = "0.21"
+tower-http = { version = "0.6", features = ["cors"] }
 futures-util = "0.3"
 log = "0.4"
 axum = { version = "0.7", features = ["ws"] }

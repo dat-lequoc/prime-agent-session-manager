@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useKeyboardShortcuts } from './useKeyboardShortcuts'
 import { invoke } from '@tauri-apps/api/core'
+import { isTauri } from '@/transport'
+
+async function applyNativeZoom(level: number) {
+  if (isTauri()) {
+    await invoke('set_window_zoom_level', { level })
+  }
+}
 
 /**
  * Hook for window zoom level management with Cmd+/- hotkeys
@@ -20,17 +27,17 @@ export function useZoomControl() {
           const level = parseFloat(savedLevel)
           if (!isNaN(level) && level >= 0.75 && level <= 2.0) {
             setZoomLevel(level)
-            await invoke('set_window_zoom_level', { level })
+            await applyNativeZoom(level)
           } else {
             // Invalid or out-of-range saved level, reset to 1.0
             setZoomLevel(1.0)
-            await invoke('set_window_zoom_level', { level: 1.0 })
+            await applyNativeZoom(1.0)
             localStorage.setItem('zoomLevel', '1.0')
           }
         } else {
           // No saved level, set default to 1.0
           setZoomLevel(1.0)
-          await invoke('set_window_zoom_level', { level: 1.0 })
+          await applyNativeZoom(1.0)
           localStorage.setItem('zoomLevel', '1.0')
         }
       } catch (error) {
@@ -53,7 +60,7 @@ export function useZoomControl() {
   const handleZoomIn = async () => {
     try {
       const newLevel = Math.min(zoomLevel + 0.1, 2.0) // Max 2.0
-      await invoke('set_window_zoom_level', { level: newLevel })
+      await applyNativeZoom(newLevel)
       setZoomLevel(newLevel)
       localStorage.setItem('zoomLevel', newLevel.toString())
     } catch (error) {
@@ -64,7 +71,7 @@ export function useZoomControl() {
   const handleZoomOut = async () => {
     try {
       const newLevel = Math.max(zoomLevel - 0.1, 0.75) // Min 0.75
-      await invoke('set_window_zoom_level', { level: newLevel })
+      await applyNativeZoom(newLevel)
       setZoomLevel(newLevel)
       localStorage.setItem('zoomLevel', newLevel.toString())
     } catch (error) {
@@ -75,7 +82,7 @@ export function useZoomControl() {
   const handleZoomReset = async () => {
     try {
       const newLevel = 1.0
-      await invoke('set_window_zoom_level', { level: newLevel })
+      await applyNativeZoom(newLevel)
       setZoomLevel(newLevel)
       localStorage.setItem('zoomLevel', newLevel.toString())
     } catch (error) {

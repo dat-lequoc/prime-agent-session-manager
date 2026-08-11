@@ -1,24 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@lobehub/icons', () => {
-  const Icon = () => null
-  return {
-    Amp: Icon,
-    Antigravity: Icon,
-    ClaudeCode: Icon,
-    Codex: Icon,
-    Copilot: Icon,
-    Cursor: Icon,
-    Devin: Icon,
-    Grok: Icon,
-    Kimi: Icon,
-    Minimax: Icon,
-    OpenCode: Icon,
-    OpenRouter: Icon,
-    Zhipu: Icon,
-  }
-})
-
 import activate, { manifest } from './index'
 
 describe('psm-agent-usage plugin', () => {

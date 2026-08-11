@@ -160,6 +160,98 @@ export interface SessionEntry {
   name?: string;
   label?: string;
   targetId?: string;
+  aggregateUsage?: TokenUsage;
+  childUsage?: TokenUsage;
+  status?: Record<string, unknown>;
+  state?: Record<string, unknown>;
+  serviceTier?: string;
+}
+
+export interface PrimeTranscriptSummary {
+  sessionId: string;
+  path: string;
+  model?: string;
+  provider?: string;
+  status?: string;
+  messageCount: number;
+  ownUsage: PrimeUsage;
+  aggregateUsage: PrimeUsage;
+  attributedUsage: PrimeUsage;
+  latestGoal?: Record<string, any>;
+  latestAgentStatus?: Record<string, any>;
+  latestRefinement?: Record<string, any>;
+  thinkingLevel?: string;
+  serviceTier?: string;
+}
+
+export interface PrimeUsage {
+  input: number;
+  output: number;
+  cacheRead: number;
+  cacheWrite: number;
+  totalTokens: number;
+  cost: number;
+}
+
+export interface PrimeThreadSummary {
+  childId: string;
+  sessionId?: string;
+  name: string;
+  status: string;
+  model?: string;
+  depth: number;
+  prompt?: string;
+  spawnCode?: string;
+  transcriptPath?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  transcript?: PrimeTranscriptSummary;
+  children: PrimeThreadSummary[];
+  warnings: string[];
+}
+
+export interface PrimeKernelSummary {
+  available: boolean;
+  version?: number;
+  pythonVersion?: string;
+  timestamp?: string;
+  serializedBytes: number;
+  savedNames: string[];
+  skipped: string[];
+}
+
+export interface PrimeHarnessSummary {
+  available: boolean;
+  schema?: number;
+  memories: number;
+  prompts: number;
+  skills: number;
+  subagents: number;
+  refinements: number;
+}
+
+export interface PrimeArtifactReference {
+  kind: string;
+  path: string;
+  exists: boolean;
+  size: number;
+  modifiedMs: number;
+  opaque: boolean;
+}
+
+export interface PrimeSessionBundle {
+  revision: string;
+  root: PrimeTranscriptSummary;
+  artifactDir: string;
+  resumeCommand: string;
+  threadCount: number;
+  runningThreadCount: number;
+  threads: PrimeThreadSummary[];
+  descendantsOwnUsage: PrimeUsage;
+  kernel: PrimeKernelSummary;
+  harness: PrimeHarnessSummary;
+  artifacts: PrimeArtifactReference[];
+  warnings: string[];
 }
 
 export interface SessionChunk {
@@ -172,6 +264,7 @@ export interface SessionChunk {
 export type FullTextSearchSourceFilter = "all" | "labels_only" | "content_only";
 
 export type SessionConvertTarget =
+  | "prime-agent"
   | "pi"
   | "omp"
   | "claude-code"
