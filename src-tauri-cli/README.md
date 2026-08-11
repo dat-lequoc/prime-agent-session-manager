@@ -30,6 +30,8 @@ To specify a port, run:
 pi-session-cli -p <port>
 ```
 
+With no port argument, the server starts from the configured port (default `52131`). If that port is occupied, it automatically tries the next 10 ports and prints the selected URL. An explicit `-p`/`--port` remains strict.
+
 ## Commands
 
 - `status`: Show server status
@@ -232,9 +234,9 @@ pi-session-cli update install --force
 
 ## Troubleshooting
 
-If you get an "Address already in use" error, it means that the server is already running. You can either stop the existing server or run the CLI with a different port.
+With no arguments, the CLI automatically tries the next 10 ports when the configured port is already occupied. It reports both the conflict and the selected URL.
 
-To run the CLI with a different port, run:
+To require a specific port instead, run:
 
 ```bash
 pi-session-cli -p <port>
