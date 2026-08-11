@@ -593,27 +593,32 @@ export class HttpTransport implements Transport {
     if (this.authToken) headers['Authorization'] = `Bearer ${this.authToken}`
     if (acceptGzip) headers['Accept-Encoding'] = 'gzip'
 
+    let resp: Response
     try {
-      const resp = await fetch(`${this.baseUrl}/api`, {
+      resp = await fetch(`${this.baseUrl}/api`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ command, payload: payload ?? {} }),
       })
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
-
-      // Browser will handle gzip decoding automatically
-      const data = await resp.json() as { success: boolean; data?: T; error?: string }
-      if (!data.success) throw new Error(data.error || 'Command failed')
-      if (!this.httpOk) {
-        this.httpOk = true
-        this.emitStatus('connected')
-      }
-      return data.data as T
     } catch (e) {
       this.httpOk = false
       if (!this.wsConnected) this.emitStatus('disconnected')
       throw e
     }
+
+    // Any HTTP response proves the service is reachable. Command-level errors
+    // (for example a capability unavailable in CLI mode) should not show the
+    // global disconnected banner or discard otherwise successful requests.
+    if (!this.httpOk) {
+      this.httpOk = true
+      this.emitStatus('connected')
+    }
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+
+    // Browser will handle gzip decoding automatically
+    const data = await resp.json() as { success: boolean; data?: T; error?: string }
+    if (!data.success) throw new Error(data.error || 'Command failed')
+    return data.data as T
   }
 
   async onEvent<T>(event: string, callback: (payload: T) => void): Promise<() => void> {

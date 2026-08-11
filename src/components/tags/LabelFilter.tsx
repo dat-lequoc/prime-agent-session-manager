@@ -177,6 +177,21 @@ export default function LabelFilter({
     selectedSourceSlugs.length +
     (selectedModel ? 1 : 0) +
     (dateRange ? 1 : 0);
+  const sourceSelectionSummary = useMemo(() => {
+    if (selectedSourceSlugs.length === 0) {
+      return t("tags.filter.allHarnesses", "All harnesses");
+    }
+    if (selectedSourceSlugs.length === 1) {
+      const selectedSource = sourceOptions.find(
+        (source) => source.slug === selectedSourceSlugs[0],
+      );
+      return selectedSource?.label || selectedSourceSlugs[0];
+    }
+    return t("tags.filter.harnessesSelected", {
+      count: selectedSourceSlugs.length,
+      defaultValue: "{{count}} selected",
+    });
+  }, [selectedSourceSlugs, sourceOptions, t]);
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent | TouchEvent) => {
@@ -492,9 +507,9 @@ export default function LabelFilter({
                     >
                       <Folder className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
                       <span className="flex-1 text-left">{t("tags.filter.sources", "Sources")}</span>
-                      {selectedSourceSlugs.length > 0 && (
-                        <span className="text-[11px] text-muted-foreground/60">{selectedSourceSlugs.length}</span>
-                      )}
+                      <span className="max-w-[112px] truncate text-[11px] text-muted-foreground/60">
+                        {sourceSelectionSummary}
+                      </span>
                       <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40" />
                     </button>
                   )}
@@ -589,11 +604,39 @@ export default function LabelFilter({
                   <div className="py-1">
                     {submenu === "sources" && onSourceFilterChange && (
                       <>
+                        <button
+                          type="button"
+                          role="menuitemcheckbox"
+                          aria-checked={selectedSourceSlugs.length === 0}
+                          onClick={() => onSourceFilterChange([])}
+                          className="flex w-full items-center gap-2 rounded-md mx-1 px-2 py-1.5 text-[13px] hover:bg-muted motion-color focus-ring"
+                          style={{ width: "calc(100% - 8px)" }}
+                        >
+                          <span
+                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border motion-color ${
+                              selectedSourceSlugs.length === 0
+                                ? "border-foreground/50 bg-foreground text-background"
+                                : "border-border bg-background"
+                            }`}
+                            aria-hidden="true"
+                          >
+                            {selectedSourceSlugs.length === 0 && (
+                              <Check className="h-3 w-3" strokeWidth={2.5} />
+                            )}
+                          </span>
+                          <span className="flex-1 text-left">
+                            {t("tags.filter.allHarnesses", "All harnesses")}
+                          </span>
+                        </button>
+                        <div className="mx-3 my-1 border-t border-border/60" />
                         {sourceOptions.map((source) => {
                           const selected = selectedSourceSlugs.includes(source.slug);
                           return (
                             <button
                               key={source.slug}
+                              type="button"
+                              role="menuitemcheckbox"
+                              aria-checked={selected}
                               onClick={() => {
                                 if (selected) {
                                   onSourceFilterChange(selectedSourceSlugs.filter((slug) => slug !== source.slug));
@@ -604,14 +647,29 @@ export default function LabelFilter({
                               className="flex w-full items-center gap-2 rounded-md mx-1 px-2 py-1.5 text-[13px] hover:bg-muted motion-color focus-ring"
                               style={{ width: "calc(100% - 8px)" }}
                             >
-                              <AgentColorIcon
-                                source={source.slug}
-                                size={13}
-                                className="shrink-0"
-                                style={{ color: getAgentIconColor(source.slug) }}
-                              />
+                              <span
+                                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border motion-color ${
+                                  selected
+                                    ? "border-foreground/50 bg-foreground text-background"
+                                    : "border-border bg-background"
+                                }`}
+                                aria-hidden="true"
+                              >
+                                {selected && (
+                                  <Check className="h-3 w-3" strokeWidth={2.5} />
+                                )}
+                              </span>
+                              <span
+                                className="flex shrink-0"
+                                aria-hidden="true"
+                              >
+                                <AgentColorIcon
+                                  source={source.slug}
+                                  size={13}
+                                  style={{ color: getAgentIconColor(source.slug) }}
+                                />
+                              </span>
                               <span className="flex-1 text-left">{source.label}</span>
-                              {selected && <Check className="h-3.5 w-3.5 shrink-0 text-foreground/60" />}
                             </button>
                           );
                         })}
