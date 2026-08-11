@@ -240,7 +240,12 @@ async fn auth_check(ConnectInfo(addr): ConnectInfo<SocketAddr>, headers: HeaderM
 }
 
 async fn health_handler() -> Json<Value> {
-    Json(serde_json::json!({ "status": "ok", "version": env!("CARGO_PKG_VERSION"), "mode": "cli" }))
+    Json(serde_json::json!({
+        "status": "ok",
+        "version": env!("CARGO_PKG_VERSION"),
+        "mode": "cli",
+        "readOnly": read_only_mode(),
+    }))
 }
 
 fn extract_string(payload: &Value, key: &str) -> Result<String, String> {
@@ -248,6 +253,10 @@ fn extract_string(payload: &Value, key: &str) -> Result<String, String> {
 }
 
 async fn dispatch_command(state: &SharedState, command: &str, payload: &Value) -> Result<Value, String> {
+    if read_only_mode() && !is_read_only_command(command) {
+        return Err(format!("Command unavailable in read-only mode: {command}"));
+    }
+
     match command {
         "terminal_create" => {
             let id = extract_string(payload, "id")?;
@@ -287,6 +296,77 @@ async fn dispatch_command(state: &SharedState, command: &str, payload: &Value) -
         }
         "get_available_shells" => Ok(serde_json::json!(terminal::scan_shells())),
         _ => pi_session_manager::dispatch::dispatch(command, payload).await,
+    }
+}
+
+fn read_only_mode() -> bool {
+    std::env::var("PSM_READ_ONLY").ok().is_some_and(|value| matches!(value.trim().to_ascii_lowercase().as_str(), "1" | "true" | "yes" | "on"))
+}
+
+fn is_read_only_command(command: &str) -> bool {
+    matches!(
+        command,
+        "bridge_capabilities"
+            | "scan_sessions"
+            | "scan_sessions_paginated"
+            | "session_digest"
+            | "read_session_file"
+            | "read_session_file_chunk"
+            | "read_session_file_incremental"
+            | "read_session_file_incremental_offset"
+            | "get_file_stats"
+            | "get_session_entries"
+            | "get_session_entry_window"
+            | "get_session_labels"
+            | "get_prime_session_bundle"
+            | "detect_session_format"
+            | "list_supported_session_providers"
+            | "get_session_by_path"
+            | "get_session_by_id"
+            | "get_session_stats"
+            | "get_session_stats_light"
+            | "get_all_favorites"
+            | "is_favorite"
+            | "get_all_tags"
+            | "get_all_session_tags"
+            | "full_text_search"
+            | "search_sessions"
+            | "search_session_messages"
+            | "search_index_status"
+            | "load_app_settings"
+            | "load_server_settings"
+            | "get_psm_config_dir"
+            | "get_session_paths"
+            | "get_all_session_dirs"
+            | "check_version_downgrade"
+            | "load_psm_plugin_config"
+            | "list_npm_psm_plugin_entries"
+            | "list_path_psm_plugin_entries"
+            | "list_dev_psm_plugin_entries"
+            | "get_pi_live_sessions"
+            | "get_agent_usage_status"
+            | "list_model_options_fast"
+    )
+}
+
+#[cfg(test)]
+mod read_only_tests {
+    use super::is_read_only_command;
+
+    #[test]
+    fn permits_session_inspection_commands() {
+        assert!(is_read_only_command("scan_sessions"));
+        assert!(is_read_only_command("get_session_entries"));
+        assert!(is_read_only_command("get_prime_session_bundle"));
+    }
+
+    #[test]
+    fn rejects_mutating_and_process_commands() {
+        assert!(!is_read_only_command("delete_session"));
+        assert!(!is_read_only_command("save_app_settings"));
+        assert!(!is_read_only_command("terminal_create"));
+        assert!(!is_read_only_command("plugin_fs_read"));
+        assert!(!is_read_only_command("invoke_model_text"));
     }
 }
 

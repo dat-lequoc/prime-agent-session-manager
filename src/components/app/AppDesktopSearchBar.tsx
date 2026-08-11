@@ -3,6 +3,7 @@ import { CheckSquare2 } from "lucide-react";
 
 import SearchFilterBar from "@/components/search/SearchFilterBar";
 import ActiveFilterChips from "@/components/search/ActiveFilterChips";
+import SourceFilterPicker from "@/components/search/SourceFilterPicker";
 import type { SessionTag, Tag, DateRange } from "@/types";
 import type { SessionSortBy, SessionSortOrder } from "@/types/sessionSort";
 
@@ -99,6 +100,13 @@ function AppDesktopSearchBar({
           compact
           className="flex-1"
         />
+        {sourceOptions && onSourceFilterChange && (
+          <SourceFilterPicker
+            sourceOptions={sourceOptions}
+            selectedSourceSlugs={selectedSourceSlugs || []}
+            onSourceFilterChange={onSourceFilterChange}
+          />
+        )}
         {onSelectModeTrigger && hasVisibleSessionList && (
           <button
             type="button"

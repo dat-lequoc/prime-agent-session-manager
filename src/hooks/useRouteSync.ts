@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
 import {
   buildFeatureUrl,
+  buildNativeSessionUrl,
   buildProjectUrl,
   buildProjectsUrl,
   buildSessionUrl,
@@ -68,7 +69,7 @@ export function useRouteSync({
   // Only block the main pane when the URL names a session we have not selected yet.
   // If the user already picked a session in the sidebar (state ahead of URL), keep showing the viewer.
   const pendingSessionRoute =
-    parsedRoute.route === 'session' &&
+    (parsedRoute.route === 'session' || parsedRoute.route === 'native-session') &&
     selectedSession == null;
   const matchingAppRoute = useMemo(() => {
     if (parsedRoute.route !== 'app') return null;
@@ -142,6 +143,25 @@ export function useRouteSync({
           });
         }
         // else: session list still loading, or selectedSession already set — wait
+        break;
+      }
+
+      case 'native-session': {
+        setActiveAppViewId(null);
+        const nativeId = parsedRoute.nativeSessionId;
+        const session = sessions.find((candidate) => {
+          if (candidate.id === nativeId) return true;
+          if (candidate.id.split(':').includes(nativeId)) return true;
+          const filename = candidate.path.split(/[\\/]/).pop() || '';
+          return filename.includes(nativeId);
+        });
+        if (session) {
+          if (selectedSession?.id !== session.id) {
+            setSelectedSession(session);
+          }
+        } else if (!sessionsLoading) {
+          navigateToPath('/', { replace: true });
+        }
         break;
       }
 
@@ -230,6 +250,10 @@ export function useRouteSync({
     (id: string) => navigateToPath(buildSessionUrl(id)),
     [navigateToPath],
   );
+  const navigateToNativeSession = useCallback(
+    (nativeSessionId: string) => navigateToPath(buildNativeSessionUrl(nativeSessionId)),
+    [navigateToPath],
+  );
   const navigateToSessions = useCallback(() => navigateToPath('/'), [navigateToPath]);
   const navigateToProjects = useCallback(
     () => navigateToPath(buildProjectsUrl()),
@@ -246,6 +270,7 @@ export function useRouteSync({
 
   return {
     navigateToSession,
+    navigateToNativeSession,
     navigateToSessions,
     navigateToProjects,
     navigateToProject,

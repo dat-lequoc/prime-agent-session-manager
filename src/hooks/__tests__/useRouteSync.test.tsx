@@ -81,6 +81,21 @@ describe("useRouteSync", () => {
     expect(result.current.pendingSessionRoute).toBe(false);
   });
 
+  it("opens a canonical session from its harness-native id", async () => {
+    const nativeSession = {
+      ...makeSession("prime-agent:native-123:fingerprint"),
+      path: "/home/arena/.prime/agent/sessions/native-123.jsonl",
+    };
+    const { spies } = renderUseRouteSync("/open/native-123", {
+      sessions: [nativeSession],
+      sessionsLoading: false,
+    });
+
+    await waitFor(() => {
+      expect(spies.setSelectedSession).toHaveBeenCalledWith(nativeSession);
+    });
+  });
+
   it("activates a registered app route generically", async () => {
     const { spies } = renderUseRouteSync("/boards", {
       selectedSession: null,

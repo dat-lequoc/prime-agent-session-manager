@@ -10,6 +10,7 @@ export const ROUTES = {
   // Session views
   SESSIONS: '/',
   SESSION_DETAIL: '/sessions/:sessionId',
+  NATIVE_SESSION_DETAIL: '/open/:nativeSessionId',
 
   // Project view
   PROJECTS: '/projects',
@@ -28,6 +29,7 @@ export type RouteKey = keyof typeof ROUTES;
  */
 export type ParsedRoute =
   | { route: 'session'; sessionId: string }
+  | { route: 'native-session'; nativeSessionId: string }
   | { route: 'project'; projectPath: string | null }
   | { route: 'feature'; feature: 'dashboard' | 'settings' | 'terminal' }
   | { route: 'app'; path: string }
@@ -47,6 +49,10 @@ export function parseRoute(pathname: string): ParsedRoute {
 
   if (parts[0] === 'sessions' && parts[1]) {
     return { route: 'session', sessionId: decodeURIComponent(parts[1]) };
+  }
+
+  if (parts[0] === 'open' && parts[1]) {
+    return { route: 'native-session', nativeSessionId: decodeURIComponent(parts[1]) };
   }
 
   if (parts[0] === 'projects') {
@@ -69,6 +75,10 @@ export function parseRoute(pathname: string): ParsedRoute {
  */
 export function buildSessionUrl(sessionId: string): string {
   return `/sessions/${encodeURIComponent(sessionId)}`;
+}
+
+export function buildNativeSessionUrl(nativeSessionId: string): string {
+  return `/open/${encodeURIComponent(nativeSessionId)}`;
 }
 
 /**

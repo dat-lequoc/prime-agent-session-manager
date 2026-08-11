@@ -1,5 +1,6 @@
 import SearchFilterBar from "@/components/search/SearchFilterBar";
 import ActiveFilterChips from "@/components/search/ActiveFilterChips";
+import SourceFilterPicker from "@/components/search/SourceFilterPicker";
 import { CheckSquare2 } from "lucide-react";
 import type { SessionTag, Tag, DateRange } from "@/types";
 import type { SessionSortBy, SessionSortOrder } from "@/types/sessionSort";
@@ -89,6 +90,14 @@ function AppMobileFilterBar({
           compact={true}
           className="min-w-0 flex-1"
         />
+        {sourceOptions && onSourceFilterChange && (
+          <SourceFilterPicker
+            sourceOptions={sourceOptions}
+            selectedSourceSlugs={selectedSourceSlugs || []}
+            onSourceFilterChange={onSourceFilterChange}
+            compact
+          />
+        )}
         {onSelectModeTrigger && (
           <button
             type="button"
