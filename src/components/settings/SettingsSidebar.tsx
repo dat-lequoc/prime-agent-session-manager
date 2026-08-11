@@ -308,7 +308,16 @@ export default function SettingsSidebar({
           ))}
       </nav>
 
-      <div className="px-3 py-2 border-t border-border/60 flex-shrink-0 flex items-center justify-between gap-1">
+      <div className="border-t border-border/60 px-3 py-2 flex-shrink-0">
+        <a
+          href="https://github.com/Dwsy/pi-session-manager"
+          target="_blank"
+          rel="noreferrer"
+          className="focus-ring mb-1.5 block rounded px-2 text-[10px] leading-4 text-muted-foreground/70 hover:text-foreground"
+        >
+          Forked from Pi Session Manager by Dwsy
+        </a>
+        <div className="flex items-center justify-between gap-1">
         {canOpenConfigFolder ? (
           <button
             onClick={onOpenConfigFolder}
@@ -330,6 +339,7 @@ export default function SettingsSidebar({
         >
           <RefreshCw className="h-3.5 w-3.5" />
         </button>
+        </div>
       </div>
     </div>
   );

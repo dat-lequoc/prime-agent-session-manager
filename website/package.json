@@ -1,7 +1,7 @@
 {
   "name": "pi-session-manager-docs",
   "version": "0.1.0",
-  "description": "Documentation and landing page for Pi Session Manager",
+  "description": "Documentation and landing page for Prime Agent Session Manager",
   "private": true,
   "scripts": {
     "build": "next build && node scripts/postbuild.mjs",

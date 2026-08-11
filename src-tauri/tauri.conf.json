@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2.0.0",
-  "productName": "Pi Session Manager",
+  "productName": "Prime Agent Session Manager",
   "version": "0.7.5",
   "identifier": "com.pi.session-manager",
   "build": {

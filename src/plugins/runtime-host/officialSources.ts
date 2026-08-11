@@ -19,7 +19,7 @@ export const OFFICIAL_PSM_PLUGIN_SOURCES: readonly PsmOfficialPluginSource[] = [
       "settings.psmPlugins.officialSources.piSessionManagerSuite.description",
     defaultName: "PSM Plugin Suite",
     defaultDescription:
-      "A npm plugin suite for Pi Session Manager. Starts with Pi Context Navigator and can grow through psm.extensions.",
+      "An npm plugin suite for Prime Agent Session Manager. Starts with Pi Context Navigator and can grow through psm.extensions.",
     childPluginIds: ["dwsy.psm-pi-context"],
   },
 ];

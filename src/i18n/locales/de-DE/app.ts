@@ -1,5 +1,5 @@
 export const app = {
-  title: 'Pi Session Manager',
+  title: 'Prime Agent Session Manager',
   subtitle: 'Wählen Sie eine Sitzung aus, um Details anzuzeigen',
   projects: 'Projekte',
   demoMode: 'Demo-Modus',

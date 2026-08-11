@@ -1,7 +1,7 @@
 {
   "name": "pi-session-manager",
   "version": "0.7.5",
-  "description": "Pi Session Manager - Tauri2 Desktop App",
+  "description": "Prime Agent Session Manager - local-first coding-agent session workbench",
   "type": "module",
   "scripts": {
     "dev": "vite",

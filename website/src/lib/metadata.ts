@@ -1,10 +1,10 @@
 export const siteConfig = {
-  name: 'Pi Session Manager',
+  name: 'Prime Agent Session Manager',
   description:
-    'A local-first workspace for browsing, searching, understanding, and continuing the sessions coding agents leave behind.',
-  url: 'https://pi-session-manager.dev',
-  repo: 'https://github.com/Dwsy/pi-session-manager',
-  author: 'Dwsy',
+    'A local-first workspace for Prime Agent and coding-agent session history.',
+  url: 'https://github.com/dat-lequoc/prime-agent-session-manager',
+  repo: 'https://github.com/dat-lequoc/prime-agent-session-manager',
+  author: 'Prime Agent Session Manager contributors; based on Pi Session Manager by Dwsy',
   keywords: [
     'pi',
     'session manager',
@@ -19,6 +19,6 @@ export const siteConfig = {
   ] as string[],
   ogImage: '/og-image.png',
   social: {
-    github: 'https://github.com/Dwsy/pi-session-manager',
+    github: 'https://github.com/dat-lequoc/prime-agent-session-manager',
   },
 } as const;

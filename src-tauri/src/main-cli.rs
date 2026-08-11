@@ -42,7 +42,7 @@ fn parse_cli_args() -> Result<CommonCliArgs, String> {
 fn print_help() {
     let default_path = cli_common::default_config_path();
     println!(
-        "Pi Session Manager CLI\n\
+        "Prime Agent Session Manager CLI\n\
          \n\
          USAGE:\n\
            pi-session-cli [OPTIONS]\n\
@@ -108,7 +108,7 @@ async fn main() {
         return;
     }
 
-    info!("Starting Pi Session Manager - CLI Mode");
+    info!("Starting Prime Agent Session Manager - CLI Mode");
 
     // Load configuration and apply CLI overrides
     let mut server_cfg = cli_common::load_server_config();

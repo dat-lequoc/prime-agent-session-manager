@@ -13,13 +13,13 @@ const translations = {
       titleLeading: 'Keep the work',
       titleAccent: 'your agents leave behind.',
       description:
-        'Pi Session Manager turns coding-agent history into a local-first workspace you can browse, search, understand, and continue -- without replacing the agents that created it.',
+        'Prime Agent Session Manager turns Prime Agent and coding-agent history into a local-first workspace you can browse, search, understand, and continue.',
       primaryAction: 'Try the live demo',
       secondaryAction: 'Download',
       docsAction: 'Read the docs',
       windowLabel: 'SESSION OBSERVATORY',
       windowStatus: 'INDEXED LOCALLY',
-      screenshotAlt: 'Pi Session Manager session viewer showing a coding-agent conversation and tool history',
+      screenshotAlt: 'Prime Agent Session Manager showing a coding-agent conversation and tool history',
       screenshotCaption: 'Trace a session from the original request to decisions, tools, compaction, and the next handoff.',
       screenshotFeatures: ['Conversation timeline', 'Tool-call evidence', 'Copyable handoff context'],
       metrics: [
@@ -176,13 +176,13 @@ const translations = {
       titleLeading: '让 Agent 留下的工作，',
       titleAccent: '不再消失。',
       description:
-        'Pi Session Manager 将 Coding Agent 历史转化为本地优先的工作台，用于浏览、检索、理解和继续既有工作，而不是替代创建它们的 Agent。',
+        'Prime Agent Session Manager 将 Prime Agent 与 Coding Agent 历史转化为本地优先的工作台，用于浏览、检索、理解和继续既有工作。',
       primaryAction: '体验在线 Demo',
       secondaryAction: '下载应用',
       docsAction: '阅读文档',
       windowLabel: '会话观测台',
       windowStatus: '本地索引',
-      screenshotAlt: 'Pi Session Manager 会话查看器，展示 Coding Agent 对话与工具历史',
+      screenshotAlt: 'Prime Agent Session Manager 会话查看器，展示 Coding Agent 对话与工具历史',
       screenshotCaption: '从原始请求一路追踪到决策、工具调用、Compaction 与下一次交接。',
       screenshotFeatures: ['对话时间线', '工具调用证据', '可复制的交接上下文'],
       metrics: [

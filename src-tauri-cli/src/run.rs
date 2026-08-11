@@ -8,7 +8,7 @@ use std::time::Duration;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
-#[command(about = "Pi Session Manager CLI")]
+#[command(about = "Prime Agent Session Manager CLI")]
 #[command(long_about = "A CLI tool to manage Pi sessions, models, tags, and more.\n\nExample: pi-session-cli status")]
 struct Cli {
     #[command(subcommand)]

@@ -190,7 +190,7 @@ async function fetchReleaseFromManifest(channel: UpdateChannel): Promise<GithubR
         return {
           tag_name: `v${manifest.version}`,
           html_url: getReleaseUrl(manifest.version),
-          name: `Pi Session Manager v${manifest.version}`,
+          name: `Prime Agent Session Manager v${manifest.version}`,
           body: manifest.notes || '',
           published_at: manifest.pub_date || undefined,
           prerelease: channel === 'beta',
@@ -322,7 +322,7 @@ export async function checkForUpdates(
           currentVersion,
           latestVersion,
           releaseUrl: release.html_url || getReleaseUrl(latestVersion),
-          releaseName: release.name || `Pi Session Manager v${latestVersion}`,
+          releaseName: release.name || `Prime Agent Session Manager v${latestVersion}`,
           releaseNotes: trimReleaseNotes(release.body),
           releaseNotesMarkdown: release.body || '',
           publishedAt: release.published_at || null,

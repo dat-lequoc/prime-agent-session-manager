@@ -599,7 +599,7 @@ export function validateAndParseThemeJson(jsonStr: string): { valid: boolean; th
 
 export function generateThemePrompt(baseTheme?: PiThemeFile): string {
   const currentVars = baseTheme?.vars ? JSON.stringify(baseTheme.vars, null, 2) : ''
-  return `Act as an expert UI/UX and color palette designer. I want you to design a stunning, accessible, and high-quality custom theme for my developer dashboard (Pi Session Manager).
+  return `Act as an expert UI/UX and color palette designer. I want you to design a stunning, accessible, and high-quality custom theme for my developer dashboard (Prime Agent Session Manager).
 
 Please return ONLY a raw JSON object matching the following format:
 

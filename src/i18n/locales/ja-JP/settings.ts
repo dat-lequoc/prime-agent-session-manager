@@ -89,7 +89,7 @@ export const settings = {
     officialSources: {
       piSessionManagerSuite: {
         name: 'PSM プラグインスイート',
-        description: 'Pi Session Manager 用の npm プラグインスイートです。Pi Context Navigator から始まり、psm.extensions で拡張できます。',
+        description: 'Prime Agent Session Manager 用の npm プラグインスイートです。Pi Context Navigator から始まり、psm.extensions で拡張できます。',
       },
     },
   },

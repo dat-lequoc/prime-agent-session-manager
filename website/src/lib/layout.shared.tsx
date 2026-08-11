@@ -3,8 +3,8 @@ import { i18n } from './i18n';
 import { t } from './landing-i18n';
 
 export const gitConfig = {
-  user: 'Dwsy',
-  repo: 'pi-session-manager',
+  user: 'dat-lequoc',
+  repo: 'prime-agent-session-manager',
   branch: 'main',
 };
 
@@ -15,7 +15,7 @@ export function baseOptions(lang?: string): BaseLayoutProps {
   return {
     i18n,
     nav: {
-      title: 'Pi Session Manager',
+      title: 'Prime Agent Session Manager',
     },
     links: [
       { text: nav.philosophy, url: `${prefix}/#philosophy` },

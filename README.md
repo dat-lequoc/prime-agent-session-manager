@@ -1,27 +1,34 @@
-# Pi Session Manager
+# Prime Agent Session Manager
 
 <p align="center">
-  <img src="src-tauri/icons/128x128@2x.png" width="128" height="128" alt="Pi Session Manager" />
+  <img src="src-tauri/icons/128x128@2x.png" width="128" height="128" alt="Prime Agent Session Manager" />
 </p>
 
 <p align="center">
-  <strong>A local-first workbench for the sessions coding agents leave behind.</strong>
+  <strong>Your local command center for Prime Agent and coding-agent sessions.</strong>
 </p>
 
 <p align="center">
-  Browse, search, understand, and continue work across Pi and other coding agents -- without putting another Agent GUI between you and them.
+  Browse, search, understand, and continue work across Prime Agent, Pi, Claude Code, Codex, and other coding agents.
 </p>
 
+> [!IMPORTANT]
+> **Prime Agent Session Manager** is a private development fork of
+> [Pi Session Manager](https://github.com/Dwsy/pi-session-manager) by
+> [Dwsy](https://github.com/Dwsy). The original architecture, product foundation,
+> and upstream implementation are credited to Dwsy and the upstream contributors.
+> This fork is focused on first-class Prime Agent support while preserving
+> compatibility with the upstream project.
+
 <p align="center">
-  <a href="https://github.com/Dwsy/pi-session-manager/releases/latest">Releases</a> ·
-  <a href="https://dwsy.github.io/pi-session-manager/">Documentation</a> ·
+  <a href="https://github.com/dat-lequoc/prime-agent-session-manager">Source</a> ·
+  <a href="https://github.com/Dwsy/pi-session-manager">Upstream</a> ·
+  <a href="https://dwsy.github.io/pi-session-manager/">Upstream Documentation</a> ·
   <a href="README.zh.md">中文</a> ·
   <a href="https://dwsy.github.io/pi-session-manager/demo/">Demo</a> ·
   <a href="https://dwsy.github.io/pi-session-manager/dataset/">Dataset</a> ·
   <a href="extensions/README.md">Extensions</a>
 </p>
-
-## UI Preview
 
 ## UI Preview
 
@@ -38,7 +45,8 @@
 
 ### Desktop App
 
-Download the latest build for macOS, Windows, or Linux from [GitHub Releases](https://github.com/Dwsy/pi-session-manager/releases/latest).
+Fork-specific releases are not published yet. Until then, the commands below
+install the compatible upstream build from Dwsy's release channel.
 
 ### CLI / Headless Server
 
@@ -73,7 +81,7 @@ The installers download the latest `pi-session-cli`, verify SHA256 when availabl
 
 Coding agent sessions are more than disposable chat logs. They contain decisions, commands, failed attempts, tool traces, and the context needed to continue unfinished work.
 
-Pi Session Manager treats those sessions as durable, inspectable project artifacts. It indexes and organizes existing session sources while leaving execution to the agents and terminals that created them.
+Prime Agent Session Manager treats those sessions as durable, inspectable project artifacts. It indexes and organizes existing session sources while leaving execution to the agents and terminals that created them.
 
 > PSM manages the work around the agent, not the agent itself.
 
@@ -113,14 +121,16 @@ Start here:
 
 ## License
 
-MIT
+The upstream README identifies the project as MIT-licensed. See
+[NOTICE.md](NOTICE.md) for provenance and attribution. Original upstream work
+remains credited to Dwsy and the upstream contributors.
 
 ## macOS Installation Note
 
 If macOS shows "App is damaged and can't be opened", run:
 
 ```bash
-sudo xattr -rd com.apple.quarantine "/Applications/Pi Session Manager.app"
+sudo xattr -rd com.apple.quarantine "/Applications/Prime Agent Session Manager.app"
 ```
 
 This is standard Gatekeeper behavior for non-App-Store apps. No certificate is required for personal use.

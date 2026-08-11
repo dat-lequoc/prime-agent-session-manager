@@ -1617,7 +1617,7 @@ function App() {
             <div className="absolute inset-0 rounded-full bg-accent/20 blur-xl animate-pulse" />
             <img
               src="/icon-128.png"
-              alt="Pi Session Manager"
+              alt="Prime Agent Session Manager"
               className="relative w-16 h-16 rounded-lg shadow-lg"
             />
             <div className="absolute -right-1 -bottom-1">
