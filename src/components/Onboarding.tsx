@@ -8,7 +8,6 @@ import {
   ChevronRight,
   ChevronLeft,
   X,
-  Sparkles,
   Server,
   Bot,
   Puzzle,
@@ -145,7 +144,16 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
   const steps: StepConfig[] = [
     {
-      icon: <Sparkles className="h-6 w-6" />,
+      icon: (
+        <img
+          src="/prime-agent-icon-128.png"
+          alt=""
+          width={32}
+          height={32}
+          className="h-8 w-8 rounded-lg"
+          aria-hidden="true"
+        />
+      ),
       titleKey: 'onboarding.steps.welcome.title',
       descriptionKey: 'onboarding.steps.welcome.description',
     },

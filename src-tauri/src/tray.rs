@@ -59,7 +59,7 @@ pub fn create_tray<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
 fn load_tray_icon() -> Result<Image<'static>, String> {
     // Use dedicated tray icon (white Pi logo on transparent background)
     // macOS template mode: alpha channel drives color (white on dark, black on light)
-    let icon_bytes = include_bytes!("../icons/tray-icon.png");
+    let icon_bytes = include_bytes!("../icons/prime/tray-icon.png");
     Image::from_bytes(icon_bytes).map_err(|e| format!("Failed to load tray icon: {e}"))
 }
 
