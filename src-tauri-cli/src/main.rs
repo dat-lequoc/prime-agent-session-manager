@@ -12,8 +12,10 @@ use colored::*;
 use futures_util::{SinkExt, StreamExt};
 use rust_embed::Embed;
 use serde_json::Value;
+use std::io::ErrorKind;
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
+use tokio::net::TcpListener;
 use tokio::sync::broadcast;
 use tracing::error;
 
@@ -41,6 +43,19 @@ pub struct AppState {
 
 pub type SharedState = Arc<AppState>;
 
+const PORT_FALLBACK_LIMIT: u16 = 10;
+
+enum BoundServer {
+    Single(TcpListener),
+    Dual(TcpListener, TcpListener),
+}
+
+#[derive(Debug, PartialEq, Eq)]
+enum StartupMode {
+    Server { port_override: Option<u16> },
+    Command,
+}
+
 #[derive(Debug, Clone, serde::Deserialize)]
 struct ServerConfig {
     #[serde(default = "default_true")]
@@ -64,6 +79,23 @@ fn default_bind() -> String {
 }
 fn default_auth_enabled() -> bool {
     true
+}
+
+fn parse_startup_mode(args: &[String]) -> Result<StartupMode, String> {
+    if args.is_empty() {
+        return Ok(StartupMode::Server { port_override: None });
+    }
+
+    let port_value = match args {
+        [flag, value] if flag == "-p" || flag == "--port" => Some(value.as_str()),
+        [arg] => arg.strip_prefix("--port="),
+        _ => None,
+    };
+
+    match port_value {
+        Some(value) => value.parse::<u16>().map(|port| StartupMode::Server { port_override: Some(port) }).map_err(|_| format!("Invalid server port: `{value}`")),
+        None => Ok(StartupMode::Command),
+    }
 }
 
 impl Default for ServerConfig {
@@ -127,14 +159,25 @@ async fn main() {
     }
     tracing_subscriber::fmt::init();
 
-    let config = load_config();
-
-    if std::env::args().len() > 1 {
-        if let Err(e) = run::run().await {
-            error!("Command failed: {e}");
-            std::process::exit(1);
+    let raw_args = std::env::args().skip(1).collect::<Vec<_>>();
+    let port_override = match parse_startup_mode(&raw_args) {
+        Ok(StartupMode::Server { port_override }) => port_override,
+        Ok(StartupMode::Command) => {
+            if let Err(e) = run::run().await {
+                error!("Command failed: {e}");
+                std::process::exit(1);
+            }
+            return;
         }
-        return;
+        Err(e) => {
+            error!("{e}");
+            std::process::exit(2);
+        }
+    };
+
+    let mut config = load_config();
+    if let Some(port) = port_override {
+        config.http_port = port;
     }
 
     println!("{}", "🚀 Prime-Agent Session Manager — CLI Mode".green().bold());
@@ -174,9 +217,31 @@ async fn main() {
         }
     };
 
-    let port = config.http_port;
+    let requested_port = config.http_port;
     let bind_is_any = config.bind_addr == "0.0.0.0";
-    let addr = format!("{}:{}", config.bind_addr, port);
+
+    let fallback_limit = if port_override.is_some() { 0 } else { PORT_FALLBACK_LIMIT };
+    let (bound_server, port) = if bind_is_any {
+        match bind_dual_with_fallback(requested_port, fallback_limit).await {
+            Ok((listener_v4, listener_v6, port)) => (BoundServer::Dual(listener_v4, listener_v6), port),
+            Err(e) => {
+                error!("Server error: {e}");
+                return;
+            }
+        }
+    } else {
+        match bind_single_with_fallback(&config.bind_addr, requested_port, fallback_limit).await {
+            Ok((listener, port)) => (BoundServer::Single(listener), port),
+            Err(e) => {
+                error!("Server error: {e}");
+                return;
+            }
+        }
+    };
+
+    if port != requested_port {
+        println!("{} Port {requested_port} is already in use; using {port}", "⚠".yellow());
+    }
     println!("{} http://127.0.0.1:{port}  (API + WS)", "🌐".blue());
     if bind_is_any {
         println!("   Also listening on [::1]:{port} (IPv6)");
@@ -185,11 +250,11 @@ async fn main() {
 
     let s = state.clone();
     let handle = tokio::spawn(async move {
-        if bind_is_any {
-            if let Err(e) = run_server_dual(s, port).await {
-                error!("Server error: {e}");
-            }
-        } else if let Err(e) = run_server(s, &addr).await {
+        let result = match bound_server {
+            BoundServer::Single(listener) => run_server(s, listener).await,
+            BoundServer::Dual(listener_v4, listener_v6) => run_server_dual(s, listener_v4, listener_v6).await,
+        };
+        if let Err(e) = result {
             error!("Server error: {e}");
         }
     });
@@ -397,23 +462,50 @@ fn build_router(state: SharedState) -> Router {
     Router::new().route("/api/auth-check", get(auth_check).options(preflight_handler)).route("/api", post(api_handler).options(preflight_handler)).route("/health", get(health_handler)).route("/ws", get(ws_upgrade)).fallback(static_handler).with_state(state)
 }
 
-async fn run_server(state: SharedState, addr: &str) -> Result<(), Box<dyn std::error::Error>> {
+fn port_candidates(start_port: u16, max_fallbacks: u16) -> std::ops::RangeInclusive<u16> {
+    start_port..=start_port.saturating_add(max_fallbacks)
+}
+
+async fn bind_single_with_fallback(bind_addr: &str, start_port: u16, max_fallbacks: u16) -> std::io::Result<(TcpListener, u16)> {
+    let last_port = start_port.saturating_add(max_fallbacks);
+    for port in port_candidates(start_port, max_fallbacks) {
+        match TcpListener::bind(format!("{bind_addr}:{port}")).await {
+            Ok(listener) => return Ok((listener, port)),
+            Err(e) if e.kind() == ErrorKind::AddrInUse && port < last_port => continue,
+            Err(e) => return Err(e),
+        }
+    }
+    unreachable!("port candidate range always contains the requested port")
+}
+
+async fn bind_dual_with_fallback(start_port: u16, max_fallbacks: u16) -> std::io::Result<(TcpListener, TcpListener, u16)> {
+    let last_port = start_port.saturating_add(max_fallbacks);
+    for port in port_candidates(start_port, max_fallbacks) {
+        let listener_v4 = match TcpListener::bind(format!("0.0.0.0:{port}")).await {
+            Ok(listener) => listener,
+            Err(e) if e.kind() == ErrorKind::AddrInUse && port < last_port => continue,
+            Err(e) => return Err(e),
+        };
+
+        match TcpListener::bind(format!("[::1]:{port}")).await {
+            Ok(listener_v6) => return Ok((listener_v4, listener_v6, port)),
+            Err(e) if e.kind() == ErrorKind::AddrInUse && port < last_port => continue,
+            Err(e) => return Err(e),
+        }
+    }
+    unreachable!("port candidate range always contains the requested port")
+}
+
+async fn run_server(state: SharedState, listener: TcpListener) -> Result<(), Box<dyn std::error::Error>> {
     let app = build_router(state);
-    let listener = tokio::net::TcpListener::bind(addr).await?;
-    println!("{} Server listening on {addr}", "🌐".blue());
+    println!("{} Server listening on {}", "🌐".blue(), listener.local_addr()?);
     axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>()).await?;
     Ok(())
 }
 
 /// Dual-stack: bind IPv4 (0.0.0.0) + IPv6 ([::1]) simultaneously
-async fn run_server_dual(state: SharedState, port: u16) -> Result<(), Box<dyn std::error::Error>> {
+async fn run_server_dual(state: SharedState, listener_v4: TcpListener, listener_v6: TcpListener) -> Result<(), Box<dyn std::error::Error>> {
     let app = build_router(state);
-    let v4_addr = format!("0.0.0.0:{port}");
-    let v6_addr = format!("[::1]:{port}");
-
-    let listener_v4 = tokio::net::TcpListener::bind(&v4_addr).await?;
-    let listener_v6 = tokio::net::TcpListener::bind(&v6_addr).await?;
-
     let svc = app.into_make_service_with_connect_info::<SocketAddr>();
     let svc_v6 = svc.clone();
 
@@ -430,6 +522,44 @@ async fn run_server_dual(state: SharedState, port: u16) -> Result<(), Box<dyn st
         r = h2 => { if let Err(e) = r { error!("IPv6 listener failed: {e}"); } }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod port_fallback_tests {
+    use super::{bind_single_with_fallback, parse_startup_mode, port_candidates, StartupMode};
+    use tokio::net::TcpListener;
+
+    #[test]
+    fn candidate_range_is_bounded_and_saturating() {
+        assert_eq!(port_candidates(52131, 10).collect::<Vec<_>>(), (52131..=52141).collect::<Vec<_>>());
+        assert_eq!(port_candidates(u16::MAX - 1, 10).collect::<Vec<_>>(), vec![u16::MAX - 1, u16::MAX]);
+    }
+
+    #[test]
+    fn recognizes_implicit_and_explicit_server_startup() {
+        assert_eq!(parse_startup_mode(&[]).unwrap(), StartupMode::Server { port_override: None });
+        assert_eq!(parse_startup_mode(&["--port".into(), "52132".into()]).unwrap(), StartupMode::Server { port_override: Some(52132) });
+        assert_eq!(parse_startup_mode(&["--port=52133".into()]).unwrap(), StartupMode::Server { port_override: Some(52133) });
+        assert_eq!(parse_startup_mode(&["--port".into(), "52132".into(), "status".into()]).unwrap(), StartupMode::Command);
+        assert!(parse_startup_mode(&["--port=invalid".into()]).is_err());
+    }
+
+    #[tokio::test]
+    async fn falls_back_when_requested_port_is_occupied() {
+        let (occupied, occupied_port) = loop {
+            let occupied = TcpListener::bind("127.0.0.1:0").await.expect("bind occupied test port");
+            let port = occupied.local_addr().expect("occupied local address").port();
+            if port < u16::MAX && TcpListener::bind(("127.0.0.1", port + 1)).await.is_ok() {
+                break (occupied, port);
+            }
+        };
+
+        let (selected, selected_port) = bind_single_with_fallback("127.0.0.1", occupied_port, 1).await.expect("select fallback port");
+        assert_eq!(selected_port, occupied_port + 1);
+
+        drop(selected);
+        drop(occupied);
+    }
 }
 
 fn cors_headers() -> [(&'static str, &'static str); 3] {
