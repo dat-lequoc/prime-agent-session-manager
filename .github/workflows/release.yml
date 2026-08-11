@@ -203,6 +203,42 @@ jobs:
           path: cli-dist/*
           retention-days: 7
 
+  # Publish headless CLI assets independently from desktop signing. Forks and
+  # fresh repositories may not have TAURI_SIGNING_PRIVATE_KEY configured yet;
+  # that must not make the CLI installer unusable.
+  finalize-cli-release:
+    needs: build-cli
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Download CLI artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: cli-*
+          path: cli-artifacts
+          merge-multiple: true
+
+      - name: Fix CLI permissions
+        run: |
+          for f in cli-artifacts/pi-session-cli-*; do
+            if [ -f "$f" ] && [[ ! "$f" =~ \.sha256$ ]] && [[ ! "$f" =~ \.exe$ ]]; then
+              chmod +x "$f"
+            fi
+          done
+
+      - name: Publish CLI release assets
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "Prime-Agent Session Manager ${{ github.ref_name }}"
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
+          files: cli-artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   # ── Finalize Release ─────────────────────────────────────
   finalize-release:
     needs: [build-desktop, build-cli]
