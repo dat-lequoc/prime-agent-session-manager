@@ -1,0 +1,50 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="prime-trace" x1="268" y1="244" x2="790" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A78BFA"/>
+      <stop offset="0.48" stop-color="#7DD3FC"/>
+      <stop offset="1" stop-color="#5EEAD4"/>
+    </linearGradient>
+    <radialGradient id="prime-surface" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(616 354) rotate(128.5) scale(754)">
+      <stop stop-color="#24243A"/>
+      <stop offset="0.58" stop-color="#181925"/>
+      <stop offset="1" stop-color="#11121A"/>
+    </radialGradient>
+    <filter id="trace-glow" x="174" y="166" width="700" height="700" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="1024" rx="224" fill="url(#prime-surface)"/>
+  <rect x="20" y="20" width="984" height="984" rx="204" stroke="#FFFFFF" stroke-opacity="0.055" stroke-width="4"/>
+
+  <path
+    d="M318 764V274H563C700 274 780 355 780 476C780 598 696 672 563 672H423"
+    stroke="url(#prime-trace)"
+    stroke-opacity="0.22"
+    stroke-width="126"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    filter="url(#trace-glow)"
+  />
+  <path
+    d="M318 764V274H563C700 274 780 355 780 476C780 598 696 672 563 672H423"
+    stroke="url(#prime-trace)"
+    stroke-width="92"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <path d="M318 510H555" stroke="url(#prime-trace)" stroke-width="58" stroke-linecap="round"/>
+  <path d="M423 672L555 510" stroke="url(#prime-trace)" stroke-width="58" stroke-linecap="round"/>
+
+  <circle cx="318" cy="510" r="24" fill="#161722" stroke="#B7A4FF" stroke-width="14"/>
+  <circle cx="423" cy="672" r="24" fill="#161722" stroke="#73DBE3" stroke-width="14"/>
+
+  <circle cx="555" cy="510" r="54" fill="#EAFBFF" fill-opacity="0.13"/>
+  <path
+    d="M555 446C561 484 581 504 619 510C581 516 561 536 555 574C549 536 529 516 491 510C529 504 549 484 555 446Z"
+    fill="#F7FDFF"
+  />
+  <circle cx="555" cy="510" r="13" fill="#FFFFFF"/>
+</svg>

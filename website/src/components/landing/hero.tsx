@@ -15,7 +15,17 @@ export function Hero({ lang = 'en' }: { lang?: string }) {
 
       <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] lg:gap-16">
         <div className="relative z-10">
-          <p className="landing-kicker landing-enter">{i.eyebrow}</p>
+          <div className="landing-enter flex items-center gap-3">
+            <img
+              src={`${basePath}/prime-agent-icon.png`}
+              alt=""
+              width={48}
+              height={48}
+              className="h-12 w-12 rounded-xl shadow-lg shadow-fd-primary/10"
+              aria-hidden="true"
+            />
+            <p className="landing-kicker">{i.eyebrow}</p>
+          </div>
 
           <h1 className="landing-display landing-enter landing-delay-1 mt-6 text-balance text-5xl font-semibold leading-[0.98] tracking-[-0.055em] text-fd-foreground sm:text-6xl lg:text-[5.2rem]">
             <span className="block">{i.titleLeading}</span>

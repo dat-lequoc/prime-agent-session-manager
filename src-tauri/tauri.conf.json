@@ -22,11 +22,11 @@
     "targets": "all",
     "createUpdaterArtifacts": true,
     "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
+      "icons/prime/32x32.png",
+      "icons/prime/128x128.png",
+      "icons/prime/128x128@2x.png",
+      "icons/prime/icon.icns",
+      "icons/prime/icon.ico"
     ]
   },
   "plugins": {

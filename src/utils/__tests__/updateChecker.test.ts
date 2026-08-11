@@ -38,7 +38,7 @@ describe('compareVersions', () => {
 describe('GitHub proxy URL encoding', () => {
   it('decodes only the proxy prefix and keeps repository path readable', () => {
     expect(getGithubLatestReleaseProxyApiUrl()).toBe(
-      'https://jsp.dwsy.link/http/https://api.github.com/repos/Dwsy/pi-session-manager/releases/latest',
+      'https://jsp.dwsy.link/http/https://api.github.com/repos/dat-lequoc/prime-agent-session-manager/releases/latest',
     )
     expect(getGithubProxyRequestHeaders().Referer).toContain('https://jsp.dwsy.link/?')
   })
@@ -85,7 +85,7 @@ describe('checkForUpdates - fallback logic', () => {
       if (url.startsWith('https://api.github.com')) {
         return Promise.resolve({ ok: false, status: 403 })
       }
-      expect(url).toContain('https://jsp.dwsy.link/http/https://api.github.com/repos/Dwsy/pi-session-manager/releases/latest')
+      expect(url).toContain('https://jsp.dwsy.link/http/https://api.github.com/repos/dat-lequoc/prime-agent-session-manager/releases/latest')
       expect(init?.headers).toMatchObject({
         Accept: 'application/vnd.github+json',
         Referer: expect.stringContaining('https://jsp.dwsy.link/?'),
@@ -121,7 +121,7 @@ describe('checkForUpdates - fallback logic', () => {
       if (url.startsWith('https://api.github.com')) {
         return Promise.resolve({ ok: false, status: 403 })
       }
-      expect(url).toContain('https://jsp.dwsy.link/http/https://api.github.com/repos/Dwsy/pi-session-manager/releases?per_page=20')
+      expect(url).toContain('https://jsp.dwsy.link/http/https://api.github.com/repos/dat-lequoc/prime-agent-session-manager/releases?per_page=20')
       expect(init?.headers).toMatchObject({
         Accept: 'application/vnd.github+json',
         Referer: expect.stringContaining('https://jsp.dwsy.link/?'),

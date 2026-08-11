@@ -1,7 +1,7 @@
 # Prime Agent Session Manager
 
 <p align="center">
-  <img src="src-tauri/icons/128x128@2x.png" width="128" height="128" alt="Prime Agent Session Manager" />
+  <img src="branding/prime-agent-mark.svg" width="128" height="128" alt="Prime Agent Session Manager" />
 </p>
 
 <p align="center">

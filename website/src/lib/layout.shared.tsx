@@ -2,6 +2,8 @@ import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import { i18n } from './i18n';
 import { t } from './landing-i18n';
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+
 export const gitConfig = {
   user: 'dat-lequoc',
   repo: 'prime-agent-session-manager',
@@ -15,7 +17,19 @@ export function baseOptions(lang?: string): BaseLayoutProps {
   return {
     i18n,
     nav: {
-      title: 'Prime Agent Session Manager',
+      title: (
+        <span className="inline-flex items-center gap-2">
+          <img
+            src={`${basePath}/prime-agent-icon.png`}
+            alt=""
+            width={28}
+            height={28}
+            className="rounded-md"
+            aria-hidden="true"
+          />
+          <span>Prime Agent Session Manager</span>
+        </span>
+      ),
     },
     links: [
       { text: nav.philosophy, url: `${prefix}/#philosophy` },
