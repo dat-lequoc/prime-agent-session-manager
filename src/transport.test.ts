@@ -33,4 +33,29 @@ describe("HttpTransport", () => {
     unlisten();
     transport.disconnect();
   });
+
+  it("stays connected when the server returns a command-level error", async () => {
+    vi.stubGlobal("WebSocket", vi.fn());
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: false, error: "App state not available" }),
+    }));
+
+    const transport = new HttpTransport(
+      "http://127.0.0.1:53137",
+      "ws://127.0.0.1:53137/ws",
+      null,
+      false,
+    );
+    const statuses: string[] = [];
+    transport.onStatusChange(status => statuses.push(status));
+
+    await expect(transport.invoke("get_pi_live_sessions")).rejects.toThrow(
+      "App state not available",
+    );
+
+    expect(statuses).toEqual(["connecting", "connected"]);
+    expect(transport.isConnected()).toBe(true);
+    transport.disconnect();
+  });
 });

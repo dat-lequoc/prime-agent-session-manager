@@ -255,7 +255,7 @@ export function usePaginatedSessions({
             sortOrder: normalizedSortOrder,
           }),
           shouldUseBackend && offset === 0
-            ? invoke<any[]>("get_pi_live_sessions")
+            ? invoke<any[]>("get_pi_live_sessions").catch(() => [])
             : Promise.resolve([]),
         ]);
 

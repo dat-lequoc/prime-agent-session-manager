@@ -57,6 +57,12 @@ import {
 import { invoke, isTauri } from "./transport";
 import { getCachedSettings } from "./utils/settingsApi";
 import { getSessionSourceSlug } from "./utils/session";
+import {
+  readInitialSourceFilterSlugs,
+  SOURCE_FILTER_STORAGE_KEY,
+  SOURCE_FILTER_VERSION,
+  SOURCE_FILTER_VERSION_KEY,
+} from "./utils/sourceFilterPreferences";
 import { getPathBasename, pathsEqual } from "./utils/path";
 import {
   buildPiResumeCommand,
@@ -237,17 +243,13 @@ function App() {
   );
   const [activeAppViewId, setActiveAppViewId] = useState<string | null>(null);
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
-  const [sourceFilterSlugs, setSourceFilterSlugs] = useState<string[]>(() => {
-    try {
-      const raw = localStorage.getItem("psm-source-filter-slugs");
-      const parsed = raw ? JSON.parse(raw) : [];
-      return Array.isArray(parsed)
-        ? parsed.filter((value): value is string => typeof value === "string")
-        : [];
-    } catch {
-      return [];
-    }
-  });
+  const [sourceFilterSlugs, setSourceFilterSlugs] = useState<string[]>(() =>
+    standaloneDatasetRuntime
+      ? []
+      : readInitialSourceFilterSlugs(
+          typeof localStorage === "undefined" ? null : localStorage,
+        ),
+  );
   const [modelFilter, setModelFilter] = useState("");
   const [dateRange, setDateRange] = useState<import("./types").DateRange | null>(null);
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState("");
@@ -471,13 +473,15 @@ function App() {
     });
   }, [standaloneDatasetRuntime]);
   useEffect(() => {
+    if (standaloneDatasetRuntime) return;
     try {
       localStorage.setItem(
-        "psm-source-filter-slugs",
+        SOURCE_FILTER_STORAGE_KEY,
         JSON.stringify(sourceFilterSlugs),
       );
+      localStorage.setItem(SOURCE_FILTER_VERSION_KEY, SOURCE_FILTER_VERSION);
     } catch {}
-  }, [sourceFilterSlugs]);
+  }, [sourceFilterSlugs, standaloneDatasetRuntime]);
   const { isInitialized, terminalConfig, reloadTerminalConfig } =
     useAppBootstrap({
       loadSessions,
