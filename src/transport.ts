@@ -483,11 +483,12 @@ export class HttpTransport implements Transport {
     baseUrl = readRemoteConfig().httpBaseUrl,
     wsUrl = readRemoteConfig().wsUrl,
     authToken: string | null = readRemoteConfig().token ?? null,
+    connectEvents = true,
   ) {
     this.baseUrl = baseUrl
     this.wsUrl = wsUrl
     this.authToken = authToken
-    this.connectEventWs()
+    if (connectEvents) this.connectEventWs()
   }
 
   private emitStatus(status: ConnectionStatus): void {
@@ -664,7 +665,7 @@ export function createTransport(enableCompression = false): Transport {
   const forceWs = cfg.transport === 'ws'
 
   if (forceHttp || (!forceWs && detectMobileWeb())) {
-    return new HttpTransport(cfg.httpBaseUrl, cfg.wsUrl, cfg.token ?? null)
+    return new HttpTransport(cfg.httpBaseUrl, cfg.wsUrl, cfg.token ?? null, !forceHttp)
   }
 
   return new WebSocketTransport(cfg.wsUrl, cfg.token, enableCompression)
