@@ -12,7 +12,7 @@ use colored::*;
 use futures_util::{SinkExt, StreamExt};
 use rust_embed::Embed;
 use serde_json::Value;
-use std::io::ErrorKind;
+use std::io::{ErrorKind, IsTerminal};
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener;
@@ -242,7 +242,9 @@ async fn main() {
     if port != requested_port {
         println!("{} Port {requested_port} is already in use; using {port}", "⚠".yellow());
     }
-    println!("{} http://127.0.0.1:{port}  (API + WS)", "🌐".blue());
+    let url = format!("http://127.0.0.1:{port}");
+    let display_url = format_terminal_hyperlink(&url, terminal_hyperlinks_enabled());
+    println!("{} {display_url}  (API + WS)", "🌐".blue());
     if bind_is_any {
         println!("   Also listening on [::1]:{port} (IPv6)");
     }
@@ -466,6 +468,19 @@ fn port_candidates(start_port: u16, max_fallbacks: u16) -> std::ops::RangeInclus
     start_port..=start_port.saturating_add(max_fallbacks)
 }
 
+fn terminal_hyperlinks_enabled() -> bool {
+    let term_supports_escapes = std::env::var("TERM").map(|term| term != "dumb").unwrap_or(true);
+    std::io::stdout().is_terminal() && std::env::var_os("NO_COLOR").is_none() && term_supports_escapes
+}
+
+fn format_terminal_hyperlink(url: &str, enabled: bool) -> String {
+    if enabled {
+        format!("\x1b]8;;{url}\x1b\\{url}\x1b]8;;\x1b\\")
+    } else {
+        url.to_string()
+    }
+}
+
 async fn bind_single_with_fallback(bind_addr: &str, start_port: u16, max_fallbacks: u16) -> std::io::Result<(TcpListener, u16)> {
     let last_port = start_port.saturating_add(max_fallbacks);
     for port in port_candidates(start_port, max_fallbacks) {
@@ -526,7 +541,7 @@ async fn run_server_dual(state: SharedState, listener_v4: TcpListener, listener_
 
 #[cfg(test)]
 mod port_fallback_tests {
-    use super::{bind_single_with_fallback, parse_startup_mode, port_candidates, StartupMode};
+    use super::{bind_single_with_fallback, format_terminal_hyperlink, parse_startup_mode, port_candidates, StartupMode};
     use tokio::net::TcpListener;
 
     #[test]
@@ -542,6 +557,13 @@ mod port_fallback_tests {
         assert_eq!(parse_startup_mode(&["--port=52133".into()]).unwrap(), StartupMode::Server { port_override: Some(52133) });
         assert_eq!(parse_startup_mode(&["--port".into(), "52132".into(), "status".into()]).unwrap(), StartupMode::Command);
         assert!(parse_startup_mode(&["--port=invalid".into()]).is_err());
+    }
+
+    #[test]
+    fn formats_clickable_and_plain_terminal_urls() {
+        let url = "http://127.0.0.1:52132";
+        assert_eq!(format_terminal_hyperlink(url, false), url);
+        assert_eq!(format_terminal_hyperlink(url, true), "\x1b]8;;http://127.0.0.1:52132\x1b\\http://127.0.0.1:52132\x1b]8;;\x1b\\");
     }
 
     #[tokio::test]

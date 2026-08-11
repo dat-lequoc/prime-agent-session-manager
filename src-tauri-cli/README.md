@@ -30,7 +30,7 @@ To specify a port, run:
 pi-session-cli -p <port>
 ```
 
-With no port argument, the server starts from the configured port (default `52131`). If that port is occupied, it automatically tries the next 10 ports and prints the selected URL. An explicit `-p`/`--port` remains strict.
+With no port argument, the server starts from the configured port (default `52131`). If that port is occupied, it automatically tries the next 10 ports and prints the selected URL as a clickable terminal link when supported. An explicit `-p`/`--port` remains strict.
 
 ## Commands
 
