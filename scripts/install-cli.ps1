@@ -1,7 +1,6 @@
 # Prime Agent Session Manager CLI installer for Windows
-# Private repository usage:
-#   gh api -H "Accept: application/vnd.github.raw+json" `
-#     repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
+# One-line install:
+#   iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.ps1 | iex
 
 param(
     [string]$Prefix = $env:PSM_INSTALL_PREFIX,
@@ -51,11 +50,11 @@ function Text($Key) {
   -NoVerify         安装后跳过 pi-session-cli --version 验证
   -Help             显示帮助
 
-curl / PowerShell 一键安装:
-  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
+PowerShell 一键安装:
+  iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.ps1 | iex
 
 非交互安装:
-  `$env:PSM_INSTALL_YES="1"; gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
+  `$env:PSM_INSTALL_YES="1"; iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.ps1 | iex
 
 环境变量:
   PSM_INSTALL_YES=1
@@ -101,11 +100,11 @@ Options:
   -NoVerify         Skip pi-session-cli --version after install
   -Help             Show help
 
-curl / PowerShell one-line install:
-  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
+PowerShell one-line install:
+  iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.ps1 | iex
 
 Non-interactive install:
-  `$env:PSM_INSTALL_YES="1"; gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
+  `$env:PSM_INSTALL_YES="1"; iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.ps1 | iex
 
 Environment variables:
   PSM_INSTALL_YES=1

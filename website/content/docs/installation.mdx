@@ -10,9 +10,25 @@ import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 [Pi](https://github.com/badlogic/pi-mono) must be installed for session resume and terminal integration. The session manager reads Pi's JSONL session files from `~/.pi/agent/sessions/`.
 
+## Quick install: local web UI
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.sh | bash
+pi-session-cli
+```
+
+On Windows PowerShell:
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.ps1 | iex
+pi-session-cli
+```
+
+Open [http://127.0.0.1:52131/#/projects](http://127.0.0.1:52131/#/projects).
+
 ## Desktop App
 
-Download the latest fork release from [GitHub Releases](https://github.com/dat-lequoc/prime-agent-session-manager/releases). This private repository requires an authenticated GitHub account.
+Download the latest build from [GitHub Releases](https://github.com/dat-lequoc/prime-agent-session-manager/releases).
 
 ### macOS
 
@@ -63,7 +79,7 @@ chmod +x pi-session-cli
 ./pi-session-cli
 ```
 
-This starts the HTTP server on `http://0.0.0.0:52131` with the embedded frontend, WebSocket at `/ws`, and API at `/api`.
+This starts the HTTP server on `http://127.0.0.1:52131` with the embedded frontend, WebSocket at `/ws`, and API at `/api`.
 
 ## Docker
 

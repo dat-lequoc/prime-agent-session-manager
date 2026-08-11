@@ -1,6 +1,6 @@
 # Prime Agent Session Manager - Windows Installer
 # Usage: .\install.ps1 [-Mode <cli|gui|default>] [-Prefix <path>]
-#        gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install.ps1 | iex
+#        iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install.ps1 | iex
 
 param(
     [ValidateSet("cli", "gui", "default")]

@@ -7,7 +7,8 @@ import { t } from '@/lib/landing-i18n';
 type OS = 'macOS' | 'Windows' | 'Linux' | null;
 
 const releasesHref = 'https://github.com/dat-lequoc/prime-agent-session-manager/releases/latest';
-const demoHref = 'https://sessions.178.104.6.186.sslip.io/#/projects';
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+const demoHref = `${basePath}/demo/`;
 
 function detectOS(): OS {
   if (typeof navigator === 'undefined') return null;

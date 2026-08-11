@@ -1,7 +1,8 @@
 import { Github } from 'lucide-react';
 import { t } from '@/lib/landing-i18n';
 
-const demoHref = 'https://sessions.178.104.6.186.sslip.io/#/projects';
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+const demoHref = `${basePath}/demo/`;
 const releasesHref = 'https://github.com/dat-lequoc/prime-agent-session-manager/releases/latest';
 const githubHref = 'https://github.com/dat-lequoc/prime-agent-session-manager';
 

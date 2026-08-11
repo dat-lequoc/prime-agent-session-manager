@@ -2,7 +2,7 @@ import { createMDX } from 'fumadocs-mdx/next';
 
 const withMDX = createMDX();
 
-const basePath = process.env.GITHUB_ACTIONS ? '/pi-session-manager' : '';
+const basePath = process.env.GITHUB_ACTIONS ? '/prime-agent-session-manager' : '';
 
 /** @type {import('next').NextConfig} */
 const config = {

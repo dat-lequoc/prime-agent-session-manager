@@ -4,7 +4,7 @@ import { writeFileSync, closeSync, openSync } from 'node:fs'
 import { join } from 'node:path'
 
 const outDir = 'out'
-const base = process.env.GITHUB_ACTIONS ? '/pi-session-manager' : ''
+const base = process.env.GITHUB_ACTIONS ? '/prime-agent-session-manager' : ''
 
 const html = `<!DOCTYPE html>
 <html>

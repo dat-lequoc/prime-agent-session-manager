@@ -546,7 +546,7 @@ async fn handle_update_install(channel: &str, skip_confirm: bool, force: bool) -
         println!("{}", "✗ Windows 不支持 CLI 自更新（运行中的 exe 文件被系统锁定）".red().bold());
         println!();
         println!("{}", "请使用安装脚本重新安装最新版本：".yellow());
-        println!("  {}", "gh api -H \"Accept: application/vnd.github.raw+json\" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex".cyan());
+        println!("  {}", "iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.ps1 | iex".cyan());
         println!();
         println!("{}", "或手动从 GitHub Releases 下载：".dimmed());
         println!("  {}", "https://github.com/dat-lequoc/prime-agent-session-manager/releases/latest".cyan().underline());
