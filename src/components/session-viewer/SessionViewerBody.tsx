@@ -101,6 +101,7 @@ export interface SessionViewerBodyProps {
   session: SessionInfo;
   entries: SessionEntry[];
   toolbarProps: SessionViewerToolbarProps;
+  primeOverview?: ReactNode;
   layoutSlots?: SessionViewerLayoutSlots;
   mainViewSlot?: ReactNode;
   forkedFromLabel: string;
@@ -122,6 +123,7 @@ export default function SessionViewerBody({
   session,
   entries,
   toolbarProps,
+  primeOverview,
   layoutSlots,
   mainViewSlot,
   forkedFromLabel,
@@ -175,6 +177,7 @@ export default function SessionViewerBody({
 
         {layoutSlots?.top}
         <SessionViewerToolbar {...toolbarProps} />
+        {primeOverview}
 
         {session.parent_session_path && (
           <div className="px-3 py-1.5 text-xs text-muted-foreground border-b border-border bg-secondary/30 flex items-center gap-1.5">

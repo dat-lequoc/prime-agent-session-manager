@@ -1,8 +1,5 @@
 use pi_session_manager::cli_common::{self, CommonCliArgs, ServerConfig};
-use pi_session_manager::data::search::embedding::{
-    EmbeddingBatchRequest, EmbeddingConfig, EmbeddingData, EmbeddingRequest, EmbeddingResponse,
-    EmbeddingService, EmbeddingStatusResponse,
-};
+use pi_session_manager::data::search::embedding::{EmbeddingBatchRequest, EmbeddingConfig, EmbeddingData, EmbeddingRequest, EmbeddingResponse, EmbeddingService, EmbeddingStatusResponse};
 use std::sync::Arc;
 use tokio::sync::broadcast;
 use tracing::{error, info, warn};
@@ -45,7 +42,7 @@ fn print_help() {
         "Prime Agent Session Manager CLI\n\
          \n\
          USAGE:\n\
-           pi-session-cli [OPTIONS]\n\
+           prime-agent-session-manager-cli [OPTIONS]\n\
          \n\
          OPTIONS:\n\
            -h, --help           Show this help message\n\
@@ -63,25 +60,14 @@ fn print_help() {
 
 /// Initialize embedding service if model is available
 fn init_embedding_service() -> Option<Arc<EmbeddingService>> {
-    let model_path = pi_session_manager::paths::pi_root_dir()
-        .unwrap_or_default()
-        .join("models/embedding-models/embeddinggemma-300M-Q8_0.gguf");
+    let model_path = pi_session_manager::paths::pi_root_dir().unwrap_or_default().join("models/embedding-models/embeddinggemma-300M-Q8_0.gguf");
 
     if !model_path.exists() {
-        info!(
-            "Embedding model not found at {:?}, embedding service disabled",
-            model_path
-        );
+        info!("Embedding model not found at {:?}, embedding service disabled", model_path);
         return None;
     }
 
-    let config = EmbeddingConfig {
-        enabled: true,
-        model_path,
-        port: 11435,
-        auto_release_minutes: 5,
-        node_path: None,
-    };
+    let config = EmbeddingConfig { enabled: true, model_path, port: 11435, auto_release_minutes: 5, node_path: None };
 
     let service = Arc::new(EmbeddingService::new(config));
     let service_clone = service.clone();
@@ -128,7 +114,7 @@ async fn main() {
     // Start WebSocket service
     if server_cfg.ws_enabled {
         let ws_state = state.clone();
-        let ws_port = server_cfg.http_port;
+        let ws_port = server_cfg.ws_port;
         let ws_bind = server_cfg.bind_addr.clone();
         let ws_bind_log = ws_bind.clone();
         tokio::spawn(async move {
@@ -162,37 +148,20 @@ async fn main() {
         let embedding_enabled = embedding_service.is_some();
 
         tokio::spawn(async move {
-            if let Err(e) =
-                init_http_adapter(http_state, &http_bind, http_port, embedding_service).await
-            {
+            if let Err(e) = init_http_adapter(http_state, &http_bind, http_port, embedding_service).await {
                 error!("HTTP adapter failed: {}", e);
             }
         });
-        info!(
-            "HTTP: http://{}:{}/api{}",
-            http_bind_log,
-            http_port,
-            if embedding_enabled {
-                " (with embedding)"
-            } else {
-                ""
-            }
-        );
+        info!("HTTP: http://{}:{}/api{}", http_bind_log, http_port, if embedding_enabled { " (with embedding)" } else { "" });
     }
 
     info!("CLI mode running. Press Ctrl+C to exit.");
-    tokio::signal::ctrl_c()
-        .await
-        .expect("Failed to listen for ctrl+c");
+    tokio::signal::ctrl_c().await.expect("Failed to listen for ctrl+c");
     info!("Shutting down...");
 }
 
 // Simplified WS adapter for CLI mode
-async fn init_ws_adapter(
-    state: SharedCliState,
-    bind_addr: &str,
-    port: u16,
-) -> Result<(), Box<dyn std::error::Error>> {
+async fn init_ws_adapter(state: SharedCliState, bind_addr: &str, port: u16) -> Result<(), Box<dyn std::error::Error>> {
     use futures_util::{SinkExt, StreamExt};
     use tokio::net::TcpListener;
     use tokio_tungstenite::accept_async;
@@ -237,11 +206,7 @@ async fn init_ws_adapter(
                                     })
                                 }
                             };
-                            let _ = sender
-                                .send(tokio_tungstenite::tungstenite::Message::Text(
-                                    response.to_string(),
-                                ))
-                                .await;
+                            let _ = sender.send(tokio_tungstenite::tungstenite::Message::Text(response.to_string())).await;
                         }
                     }
                 }
@@ -253,17 +218,13 @@ async fn init_ws_adapter(
 }
 
 // CLI HTTP adapter (supports read-only v1 APIs)
-async fn init_http_adapter(
-    _state: SharedCliState,
-    bind_addr: &str,
-    port: u16,
-    embedding_service: Option<Arc<EmbeddingService>>,
-) -> Result<(), Box<dyn std::error::Error>> {
+async fn init_http_adapter(_state: SharedCliState, bind_addr: &str, port: u16, embedding_service: Option<Arc<EmbeddingService>>) -> Result<(), Box<dyn std::error::Error>> {
     use axum::extract::{Path, Query};
     use axum::{routing::get, routing::post, Json, Router};
     use pi_session_manager::api_readonly;
     use serde::Deserialize;
     use serde_json::Value;
+    use tower_http::cors::CorsLayer;
 
     #[derive(Deserialize)]
     struct CmdReq {
@@ -300,11 +261,7 @@ async fn init_http_adapter(
     }
 
     fn embedding_error(error: api_readonly::ApiReadonlyError) -> Json<EmbeddingResponse> {
-        Json(EmbeddingResponse {
-            success: false,
-            data: None,
-            error: Some(error.to_string()),
-        })
+        Json(EmbeddingResponse { success: false, data: None, error: Some(error.to_string()) })
     }
 
     async fn api_handler(Json(body): Json<CmdReq>) -> Json<Value> {
@@ -358,20 +315,7 @@ async fn init_http_adapter(
             Err(error) => return json_error(error),
         };
 
-        match api_readonly::memory_recall(
-            &cli_dispatch,
-            api_readonly::MemoryRecallRequest {
-                query: query_text,
-                top_k: req.top_k,
-                role_filter: req.role_filter,
-                glob_pattern: req.glob_pattern,
-                project: req.project,
-                from: req.from,
-                to: req.to,
-            },
-        )
-        .await
-        {
+        match api_readonly::memory_recall(&cli_dispatch, api_readonly::MemoryRecallRequest { query: query_text, top_k: req.top_k, role_filter: req.role_filter, glob_pattern: req.glob_pattern, project: req.project, from: req.from, to: req.to }).await {
             Ok(result) => Json(serde_json::json!({
                 "success": true,
                 "data": {
@@ -392,22 +336,7 @@ async fn init_http_adapter(
             Err(error) => return json_error(error),
         };
 
-        match api_readonly::memory_unified(
-            &cli_dispatch,
-            api_readonly::MemoryUnifiedRequest {
-                query: query_text,
-                top_k: req.top_k,
-                role_filter: req.role_filter,
-                glob_pattern: req.glob_pattern,
-                project: req.project,
-                from: req.from,
-                to: req.to,
-                experience_limit: req.experience_limit,
-            },
-            6,
-        )
-        .await
-        {
+        match api_readonly::memory_unified(&cli_dispatch, api_readonly::MemoryUnifiedRequest { query: query_text, top_k: req.top_k, role_filter: req.role_filter, glob_pattern: req.glob_pattern, project: req.project, from: req.from, to: req.to, experience_limit: req.experience_limit }, 6).await {
             Ok(result) => Json(serde_json::json!({
                 "success": true,
                 "data": {
@@ -424,19 +353,7 @@ async fn init_http_adapter(
     }
 
     async fn v1_experience_extract(Json(req): Json<api_readonly::SearchRequest>) -> Json<Value> {
-        match api_readonly::experience_extract(
-            &cli_dispatch,
-            api_readonly::ExperienceExtractRequest {
-                session_id: None,
-                limit: req.experience_limit,
-                project: req.project,
-                from: req.from,
-                to: req.to,
-            },
-            8,
-        )
-        .await
-        {
+        match api_readonly::experience_extract(&cli_dispatch, api_readonly::ExperienceExtractRequest { session_id: None, limit: req.experience_limit, project: req.project, from: req.from, to: req.to }, 8).await {
             Ok(result) => Json(serde_json::json!({
                 "success": true,
                 "data": {
@@ -454,20 +371,7 @@ async fn init_http_adapter(
             Err(error) => return json_error(error),
         };
 
-        match api_readonly::workflow_route_suggest(
-            &cli_dispatch,
-            api_readonly::WorkflowRouteSuggestRequest {
-                query: query_text,
-                top_k: req.top_k,
-                role_filter: req.role_filter,
-                glob_pattern: req.glob_pattern,
-                project: req.project,
-                from: req.from,
-                to: req.to,
-            },
-        )
-        .await
-        {
+        match api_readonly::workflow_route_suggest(&cli_dispatch, api_readonly::WorkflowRouteSuggestRequest { query: query_text, top_k: req.top_k, role_filter: req.role_filter, glob_pattern: req.glob_pattern, project: req.project, from: req.from, to: req.to }).await {
             Ok(result) => Json(serde_json::json!({
                 "success": true,
                 "data": {
@@ -509,9 +413,7 @@ async fn init_http_adapter(
         }
     }
 
-    async fn v1_search_fulltext(
-        Json(req): Json<api_readonly::FullTextSearchRequest>,
-    ) -> Json<Value> {
+    async fn v1_search_fulltext(Json(req): Json<api_readonly::FullTextSearchRequest>) -> Json<Value> {
         let query_text = req.query.clone();
         let page_size = req.page_size.unwrap_or(10).clamp(1, 100);
 
@@ -554,29 +456,21 @@ pi_sessions_total 0
 "
     }
 
-    async fn v1_embedding(
-        axum::Extension(svc): axum::Extension<Arc<EmbeddingService>>,
-        Json(req): Json<EmbeddingRequest>,
-    ) -> Json<EmbeddingResponse> {
+    async fn v1_embedding(axum::Extension(svc): axum::Extension<Arc<EmbeddingService>>, Json(req): Json<EmbeddingRequest>) -> Json<EmbeddingResponse> {
         match api_readonly::embedding(svc, req).await {
             Ok(response) => Json(response),
             Err(error) => embedding_error(error),
         }
     }
 
-    async fn v1_embedding_batch(
-        axum::Extension(svc): axum::Extension<Arc<EmbeddingService>>,
-        Json(req): Json<EmbeddingBatchRequest>,
-    ) -> Json<Value> {
+    async fn v1_embedding_batch(axum::Extension(svc): axum::Extension<Arc<EmbeddingService>>, Json(req): Json<EmbeddingBatchRequest>) -> Json<Value> {
         match api_readonly::embedding_batch(svc, req).await {
             Ok(data) => Json(serde_json::json!({ "success": true, "data": data })),
             Err(error) => json_error(error),
         }
     }
 
-    async fn v1_embedding_status(
-        axum::Extension(svc): axum::Extension<Arc<EmbeddingService>>,
-    ) -> Json<EmbeddingStatusResponse> {
+    async fn v1_embedding_status(axum::Extension(svc): axum::Extension<Arc<EmbeddingService>>) -> Json<EmbeddingStatusResponse> {
         Json(api_readonly::embedding_status(svc).await)
     }
 
@@ -591,15 +485,12 @@ pi_sessions_total 0
         .route("/v1/workflow/route-suggest", post(v1_workflow_route))
         .route("/v1/analytics/overview", get(v1_analytics))
         .route("/v1/observability/summary", get(v1_observability))
-        .route("/metrics", get(handle_metrics));
+        .route("/metrics", get(handle_metrics))
+        .layer(CorsLayer::permissive());
 
     if let Some(svc) = embedding_service {
         info!("Embedding service enabled on CLI mode");
-        app = app
-            .route("/v1/embedding", post(v1_embedding))
-            .route("/v1/embedding/batch", post(v1_embedding_batch))
-            .route("/v1/embedding/status", get(v1_embedding_status))
-            .layer(axum::Extension(svc));
+        app = app.route("/v1/embedding", post(v1_embedding)).route("/v1/embedding/batch", post(v1_embedding_batch)).route("/v1/embedding/status", get(v1_embedding_status)).layer(axum::Extension(svc));
     }
 
     let addr = format!("{bind_addr}:{port}");

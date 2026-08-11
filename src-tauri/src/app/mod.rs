@@ -25,6 +25,7 @@ pub fn run() {
             get_session_entry_window,
             get_session_preview_entries,
             get_session_labels,
+            get_prime_session_bundle,
             detect_session_format,
             list_supported_session_providers,
             convert_session_format,
@@ -257,7 +258,7 @@ mod tests {
         let handler_set = handlers.iter().copied().collect::<BTreeSet<_>>();
         let dispatch_set = crate::dispatch::capability_command_catalog().collect::<BTreeSet<_>>();
 
-        assert_eq!(handlers.len(), 176);
+        assert_eq!(handlers.len(), 177);
         assert_eq!(handler_set.len(), handlers.len());
 
         let dispatch_only = dispatch_set.difference(&handler_set).copied().collect::<Vec<_>>();

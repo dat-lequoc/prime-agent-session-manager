@@ -570,6 +570,12 @@ describe('parseSessionEntriesWithLineCount', () => {
 
 
 describe('getSessionSourceSlug', () => {
+  it('detects Prime Agent sessions before Pi sessions', () => {
+    const path = '/Users/demo/.prime/agent/sessions/019f.jsonl';
+    expect(getSessionSourceSlug(path)).toBe('prime-agent');
+    expect(getSessionSourceTag(path)).toBe('Prime Agent');
+  });
+
   it('detects omp sessions under the .omp agent dir', () => {
     expect(
       getSessionSourceSlug(
@@ -608,5 +614,22 @@ describe('getSessionSourceSlug', () => {
         '/Users/demo/.gemini/antigravity-cli/brain/uuid/.system_generated/logs/transcript.jsonl',
       ),
     ).toBe('Antigravity');
+  });
+});
+
+describe('Prime Agent usage attribution', () => {
+  it('uses the last aggregate for known assistant targets and ignores unknown targets', () => {
+    const content = [
+      JSON.stringify({ type: 'session', id: 'root', timestamp: '2026-01-01T00:00:00Z', cwd: '/tmp' }),
+      JSON.stringify({ type: 'message', id: 'a1', timestamp: '2026-01-01T00:00:01Z', message: { role: 'assistant', content: [], usage: { input: 10, output: 2, cacheRead: 0, cacheWrite: 0 } } }),
+      JSON.stringify({ type: 'child_usage_attributed', id: 'u1', targetId: 'a1', aggregateUsage: { input: 20, output: 5, cacheRead: 0, cacheWrite: 0 } }),
+      JSON.stringify({ type: 'child_usage_attributed', id: 'u2', targetId: 'a1', aggregateUsage: { input: 30, output: 7, cacheRead: 0, cacheWrite: 0 } }),
+      JSON.stringify({ type: 'child_usage_attributed', id: 'u3', targetId: 'missing', aggregateUsage: { input: 999, output: 999, cacheRead: 0, cacheWrite: 0 } }),
+    ].join('\n');
+
+    const { entries } = parseSessionEntriesWithLineCount(content);
+    const assistant = entries.find(entry => entry.id === 'a1');
+    expect(assistant?.message?.usage).toMatchObject({ input: 30, output: 7 });
+    expect(entries.filter(entry => entry.type === 'child_usage_attributed')).toHaveLength(3);
   });
 });

@@ -496,13 +496,13 @@ export class HttpTransport implements Transport {
 
   onStatusChange(listener: StatusListener): () => void {
     this.statusListeners.add(listener)
-    listener(this.wsConnected ? 'connected' : 'connecting')
+    listener(this.wsConnected || this.httpOk ? 'connected' : 'connecting')
     return () => { this.statusListeners.delete(listener) }
   }
 
   private connectEventWs(): void {
     if (this.disposed || this.ws) return
-    this.emitStatus('connecting')
+    if (!this.httpOk) this.emitStatus('connecting')
 
     try {
       const ws = new WebSocket(this.wsUrl)
@@ -605,7 +605,7 @@ export class HttpTransport implements Transport {
       if (!data.success) throw new Error(data.error || 'Command failed')
       if (!this.httpOk) {
         this.httpOk = true
-        if (this.wsConnected) this.emitStatus('connected')
+        this.emitStatus('connected')
       }
       return data.data as T
     } catch (e) {
@@ -628,7 +628,7 @@ export class HttpTransport implements Transport {
   }
 
   isConnected(): boolean {
-    return this.wsConnected
+    return this.wsConnected || this.httpOk
   }
 
   disconnect(): void {

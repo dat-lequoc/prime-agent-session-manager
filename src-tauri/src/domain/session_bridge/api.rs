@@ -27,7 +27,7 @@ pub fn default_session_dirs() -> Vec<PathBuf> {
 }
 
 pub fn default_external_session_provider_slugs() -> Vec<String> {
-    SessionBridgeSource::ALL.into_iter().filter(|source| *source != SessionBridgeSource::Pi).map(|source| source.slug().replace('_', "-")).collect()
+    SessionBridgeSource::ALL.into_iter().filter(|source| !matches!(source, SessionBridgeSource::PrimeAgent | SessionBridgeSource::Pi)).map(|source| source.slug().replace('_', "-")).collect()
 }
 
 pub fn source_from_path(path: &Path) -> Option<SessionBridgeSource> {
@@ -35,26 +35,26 @@ pub fn source_from_path(path: &Path) -> Option<SessionBridgeSource> {
 }
 
 pub fn is_external_source(source: SessionBridgeSource) -> bool {
-    source != SessionBridgeSource::Pi
+    !matches!(source, SessionBridgeSource::PrimeAgent | SessionBridgeSource::Pi)
 }
 
 pub fn is_session_visible_under_config(path: &Path, config: &Config) -> bool {
     match source_from_path(path) {
-        None | Some(SessionBridgeSource::Pi) => true,
+        None | Some(SessionBridgeSource::PrimeAgent | SessionBridgeSource::Pi) => true,
         Some(source) => config.effective_external_session_provider_slugs().iter().any(|slug| slug == &source.slug().replace('_', "-")),
     }
 }
 
 pub fn is_session_allowed_in_stats(path: &Path, config: &Config) -> bool {
     match source_from_path(path) {
-        None | Some(SessionBridgeSource::Pi) => true,
+        None | Some(SessionBridgeSource::PrimeAgent | SessionBridgeSource::Pi) => true,
         Some(_) => config.external_sessions_include_in_stats,
     }
 }
 
 pub fn is_session_allowed_in_search(path: &Path, config: &Config) -> bool {
     match source_from_path(path) {
-        None | Some(SessionBridgeSource::Pi) => true,
+        None | Some(SessionBridgeSource::PrimeAgent | SessionBridgeSource::Pi) => true,
         Some(_) => config.external_sessions_include_in_search,
     }
 }
@@ -64,7 +64,7 @@ pub fn read_canonical_session_from_path(path: &Path) -> Result<(SessionBridgeSou
     // OMP shares the Pi-Agent JSONL format but CASR has no distinct OMP
     // provider, so its sessions are read via the casr_min provider path (which
     // attributes them to OMP) instead of the vendored CASR registry.
-    let should_try_vendor = SessionBridgeSource::ALL.into_iter().any(|source| source != SessionBridgeSource::Omp && source.matches_path(path));
+    let should_try_vendor = SessionBridgeSource::ALL.into_iter().any(|source| !matches!(source, SessionBridgeSource::PrimeAgent | SessionBridgeSource::Omp) && source.matches_path(path));
 
     if should_try_vendor {
         let vendor_started_at = Instant::now();
@@ -117,7 +117,7 @@ pub fn parse_session_info_from_path(path: &Path) -> Result<(SessionInfo, Vec<Ses
 pub fn parse_session_info_header_only(path: &Path, file_modified: DateTime<Utc>) -> Result<SessionInfo, String> {
     // Use path detection first, then a bounded header probe for custom Pi roots.
     if let Some(provider) = detect_provider_from_path_or_probe(path) {
-        if provider == ProviderKind::Pi || provider == ProviderKind::Omp {
+        if matches!(provider, ProviderKind::PrimeAgent | ProviderKind::Pi | ProviderKind::Omp) {
             return crate::domain::pi_session::parse_pi_session_header_only(path, file_modified);
         }
     }

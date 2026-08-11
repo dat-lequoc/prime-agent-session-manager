@@ -69,6 +69,11 @@ export function buildOmpResumeCommand(
   return applyResumeTemplate(template, session, ompCommand);
 }
 
+export function buildPrimeResumeCommand(session: SessionInfo): string {
+  const baseCommand = `prime-agent --resume "${session.path}"`;
+  return buildChangeDirAndRun(session.cwd || "", baseCommand);
+}
+
 export function buildPiResumeCommand(
   session: SessionInfo,
   overrides: ResumeCommandOverrides = {},
@@ -152,6 +157,9 @@ export async function buildCopyResumeCommand(
   overrides: ResumeCommandOverrides = {},
 ): Promise<string> {
   const sourceSlug = getSessionSourceSlug(session.path);
+  if (sourceSlug === "prime-agent") {
+    return buildPrimeResumeCommand(session);
+  }
   if (!sourceSlug || sourceSlug === "pi") {
     return buildPiResumeCommand(session, overrides);
   }
@@ -174,6 +182,9 @@ export async function buildCopyResumeCommandForTarget(
   overrides: ResumeCommandOverrides = {},
 ): Promise<string> {
   const sourceSlug = getSessionSourceSlug(session.path);
+  if (sourceSlug === "prime-agent" && target === "prime-agent") {
+    return buildPrimeResumeCommand(session);
+  }
   if ((!sourceSlug || sourceSlug === "pi") && target === "pi") {
     return buildPiResumeCommand(session, overrides);
   }
@@ -210,13 +221,16 @@ export async function openSessionInTerminalDirect(
   const resumeCommand =
     overrides.resumeCommand ?? settings.terminal?.resumeCommand ?? "";
   const isOmpSession = sourceSlug === "omp";
+  const isPrimeSession = sourceSlug === "prime-agent";
 
   await invoke("open_session_in_terminal", {
     path: session.path,
     cwd: session.cwd,
     terminal: terminal === "custom" ? customCommand : terminal,
-    piPath: isOmpSession ? "omp" : piPath || null,
-    resumeCommand: isOmpSession
+    piPath: isOmpSession ? "omp" : isPrimeSession ? "prime-agent" : piPath || null,
+    resumeCommand: isPrimeSession
+      ? buildPrimeResumeCommand(session)
+      : isOmpSession
       ? buildOmpResumeCommand(session, { resumeCommand })
       : resumeCommand || null,
   });

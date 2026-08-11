@@ -59,6 +59,11 @@ pub struct SessionChunk {
     pub has_more: bool,
 }
 
+#[cfg_attr(feature = "gui", tauri::command)]
+pub async fn get_prime_session_bundle(root_path: String) -> Result<crate::domain::prime_session::PrimeSessionBundle, String> {
+    tokio::task::spawn_blocking(move || crate::domain::prime_session::build_prime_session_bundle(std::path::Path::new(&root_path))).await.map_err(|error| format!("Failed to join Prime session bundle task: {error}"))?
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct BridgeCapabilities {

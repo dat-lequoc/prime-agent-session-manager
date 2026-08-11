@@ -13,6 +13,16 @@ fn should_disable_watcher(config: &crate::config::Config) -> bool {
     config.session_source_mode == crate::config::SessionSourceMode::Dataset
 }
 
+fn get_all_watch_dirs(config: &crate::config::Config) -> Vec<PathBuf> {
+    let mut dirs = crate::core::scanner::get_all_session_dirs(config);
+    if let Ok(artifacts) = crate::paths::prime_agent_session_artifacts_dir() {
+        if artifacts.exists() && !dirs.iter().any(|path| path == &artifacts) {
+            dirs.push(artifacts);
+        }
+    }
+    dirs
+}
+
 /// File watcher state that can be managed by Tauri
 pub struct FileWatcherState {
     watcher: Arc<Mutex<Option<FileWatcher>>>,
@@ -128,7 +138,7 @@ pub fn start_watcher_for_all_dirs(app_handle: AppHandle) -> Result<FileWatcherSt
         debug!("File watcher disabled in dataset mode");
         return Ok(state);
     }
-    let all_dirs = crate::core::scanner::get_all_session_dirs(&config);
+    let all_dirs = get_all_watch_dirs(&config);
 
     state.restart(all_dirs, app_handle)?;
 
@@ -143,7 +153,7 @@ pub fn restart_watcher_with_config(watcher_state: &FileWatcherState, app_handle:
         watcher_state.stop().ok();
         return Ok(());
     }
-    let all_dirs = crate::core::scanner::get_all_session_dirs(&config);
+    let all_dirs = get_all_watch_dirs(&config);
 
     debug!("Restarting file watcher with {} directories", all_dirs.len());
     watcher_state.restart(all_dirs, app_handle)?;
@@ -156,6 +166,7 @@ fn process_events_with_merge(rx: Receiver<DebounceEventResult>, app_handle: AppH
     let mut last_notification = Instant::now();
     let min_interval = Duration::from_secs(5);
     let mut pending_paths: HashSet<PathBuf> = HashSet::new();
+    let mut prime_changed_roots: HashSet<PathBuf> = HashSet::new();
 
     // Create a tokio runtime for async calls
     let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().expect("Failed to create tokio runtime for file watcher");
@@ -168,6 +179,14 @@ fn process_events_with_merge(rx: Receiver<DebounceEventResult>, app_handle: AppH
                 Ok(events) => {
                     for event in &events {
                         for path in &event.paths {
+                            if crate::domain::prime_session::is_prime_root_session_path(path) {
+                                prime_changed_roots.insert(path.clone());
+                            }
+                            if let Some(root_path) = crate::domain::prime_session::artifact_path_to_root_session(path) {
+                                pending_paths.insert(root_path.clone());
+                                prime_changed_roots.insert(root_path);
+                                continue;
+                            }
                             let is_jsonl = path.extension().map(|ext| ext == "jsonl").unwrap_or(false);
                             let is_gemini_json = crate::domain::session_bridge::is_gemini_session_file(path);
                             let is_opencode_db = crate::domain::session_bridge::is_opencode_db_path(path);
@@ -206,6 +225,7 @@ fn process_events_with_merge(rx: Receiver<DebounceEventResult>, app_handle: AppH
 
         if !pending_paths.is_empty() && last_notification.elapsed() >= min_interval {
             let changed: Vec<String> = pending_paths.drain().map(|p| p.to_string_lossy().to_string()).collect();
+            let prime_changed = prime_changed_roots.drain().map(|path| path.to_string_lossy().to_string()).collect::<Vec<_>>();
 
             let changed_count = changed.len();
             let rescan_started_at = Instant::now();
@@ -214,6 +234,12 @@ fn process_events_with_merge(rx: Receiver<DebounceEventResult>, app_handle: AppH
             // Mark watcher as active so scanner scheduler skips redundant full scans
             crate::core::scanner::mark_watcher_active();
 
+            if !prime_changed.is_empty() {
+                if let Err(error) = app_handle.emit("prime-session-changed", serde_json::json!({ "rootPaths": prime_changed })) {
+                    error!("Failed to emit Prime session artifact event: {}", error);
+                }
+            }
+
             // Update backend cache, get diff
             match rt.block_on(crate::core::scanner::rescan_changed_files(changed)) {
                 Ok(diff) => {
@@ -221,6 +247,7 @@ fn process_events_with_merge(rx: Receiver<DebounceEventResult>, app_handle: AppH
                     if diff.updated.is_empty() && diff.removed.is_empty() {
                         info!("Incremental rescan completed in {}ms with no effective session diff (changed_files={})", rescan_elapsed_ms, changed_count);
                         // Nothing actually changed, skip notification
+                        last_notification = Instant::now();
                         continue;
                     }
                     info!("Incremental rescan completed in {}ms (changed_files={} updated={} removed={})", rescan_elapsed_ms, changed_count, diff.updated.len(), diff.removed.len());

@@ -259,6 +259,17 @@ pub fn get_all_session_dirs(config: &Config) -> Vec<PathBuf> {
     let mut dirs = vec![];
 
     for source in crate::domain::session_bridge::SessionBridgeSource::ALL {
+        if source == crate::domain::session_bridge::SessionBridgeSource::PrimeAgent {
+            let enabled = config.effective_external_session_provider_slugs().iter().any(|slug| slug == "prime-agent");
+            if enabled {
+                for root in source.session_roots() {
+                    if root.exists() && !dirs.iter().any(|existing| existing == &root) {
+                        dirs.push(root);
+                    }
+                }
+            }
+            continue;
+        }
         if source == crate::domain::session_bridge::SessionBridgeSource::Pi {
             if config.include_default_pi_session_dir {
                 for root in source.session_roots() {
@@ -420,6 +431,10 @@ pub(crate) fn collect_session_files(all_dirs: &[PathBuf]) -> Vec<PathBuf> {
         for entry in entries.flatten() {
             let path = entry.path();
             if path.is_dir() {
+                let is_prime_root = crate::paths::prime_agent_sessions_dir().ok().is_some_and(|prime_root| prime_root == root);
+                if is_prime_root {
+                    continue;
+                }
                 if should_skip_dir(&path, root, default_root) {
                     continue;
                 }
