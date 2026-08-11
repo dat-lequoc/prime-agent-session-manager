@@ -8,7 +8,7 @@ import i18n from "@/i18n";
 import LabelFilter from "./LabelFilter";
 
 const SOURCE_OPTIONS = [
-  { slug: "prime-agent", label: "Prime Agent" },
+  { slug: "prime-agent", label: "Prime-Agent" },
   { slug: "codex", label: "Codex" },
 ];
 
@@ -40,14 +40,14 @@ function openSourcesMenu() {
 }
 
 describe("LabelFilter source selector", () => {
-  it("shows Prime Agent as the selected checkbox and can add another harness", () => {
+  it("shows Prime-Agent as the selected checkbox and can add another harness", () => {
     render(<SourceFilterHarness />);
 
     openSourcesMenu();
 
     expect(
       screen
-        .getByRole("menuitemcheckbox", { name: "Prime Agent" })
+        .getByRole("menuitemcheckbox", { name: "Prime-Agent" })
         .getAttribute("aria-checked"),
     ).toBe("true");
     expect(
@@ -60,7 +60,7 @@ describe("LabelFilter source selector", () => {
 
     expect(
       screen
-        .getByRole("menuitemcheckbox", { name: "Prime Agent" })
+        .getByRole("menuitemcheckbox", { name: "Prime-Agent" })
         .getAttribute("aria-checked"),
     ).toBe("true");
     expect(
@@ -85,7 +85,7 @@ describe("LabelFilter source selector", () => {
     ).toBe("true");
     expect(
       screen
-        .getByRole("menuitemcheckbox", { name: "Prime Agent" })
+        .getByRole("menuitemcheckbox", { name: "Prime-Agent" })
         .getAttribute("aria-checked"),
     ).toBe("false");
   });

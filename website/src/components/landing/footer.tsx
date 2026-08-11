@@ -18,7 +18,7 @@ export function Footer({ lang = 'en' }: { lang?: string }) {
             <span className="landing-mono flex h-8 w-8 items-center justify-center rounded-sm border border-fd-border bg-fd-card text-[10px] font-semibold tracking-[0.08em] text-fd-foreground">
               PSM
             </span>
-            <span className="font-semibold text-fd-foreground">Prime Agent Session Manager</span>
+            <span className="font-semibold text-fd-foreground">Prime-Agent Session Manager</span>
           </div>
           <p className="mt-3 max-w-md text-sm leading-6 text-fd-muted-foreground">{i.tagline}</p>
           <p className="landing-mono mt-4 text-[10px] tracking-[0.12em] text-fd-muted-foreground">

@@ -1,5 +1,5 @@
 export const app = {
-  title: 'Prime Agent Session Manager',
+  title: 'Prime-Agent Session Manager',
   subtitle: 'Select a session to view details',
   projects: 'Projects',
   demoMode: 'Demo Mode',

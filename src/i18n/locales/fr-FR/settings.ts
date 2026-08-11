@@ -86,7 +86,7 @@ export const settings = {
     officialSources: {
       piSessionManagerSuite: {
         name: 'Suite de plugins PSM',
-        description: 'Une suite de plugins npm pour Prime Agent Session Manager. Elle commence avec Pi Context Navigator et peut évoluer via psm.extensions.',
+        description: 'Une suite de plugins npm pour Prime-Agent Session Manager. Elle commence avec Pi Context Navigator et peut évoluer via psm.extensions.',
       },
     },
   },

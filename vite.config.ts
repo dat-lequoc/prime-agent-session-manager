@@ -153,9 +153,9 @@ export default defineConfig(({ mode }) => {
         registerType: "autoUpdate",
         includeAssets: ["icon-128.png", "icon-512.png"],
         manifest: {
-          name: "Prime Agent Session Manager",
+          name: "Prime-Agent Session Manager",
           short_name: "Prime Sessions",
-          description: "Manage Prime Agent and coding-agent sessions locally",
+          description: "Manage Prime-Agent and coding-agent sessions locally",
           theme_color: "#1a1b26",
           background_color: "#1a1b26",
           display: "standalone",

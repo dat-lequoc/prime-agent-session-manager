@@ -137,7 +137,7 @@ async fn main() {
         return;
     }
 
-    println!("{}", "🚀 Prime Agent Session Manager — CLI Mode".green().bold());
+    println!("{}", "🚀 Prime-Agent Session Manager — CLI Mode".green().bold());
     println!("{}", "═══════════════════════════════════════".blue());
     println!("Version: {}", env!("CARGO_PKG_VERSION").yellow());
     println!("PID: {}", std::process::id().to_string().yellow());

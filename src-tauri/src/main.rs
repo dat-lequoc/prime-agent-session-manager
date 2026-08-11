@@ -70,7 +70,7 @@ fn parse_main_cli_args() -> Result<MainCliArgs, String> {
 
 fn print_help() {
     println!(
-        "Prime Agent Session Manager\n\
+        "Prime-Agent Session Manager\n\
          \n\
          USAGE:\n\
            pi-session-manager [OPTIONS]\n\
@@ -106,7 +106,7 @@ fn install_native_menu(app: &tauri::App) -> tauri::Result<()> {
     #[cfg(target_os = "macos")]
     let menu = {
         let check_update_item = MenuItemBuilder::with_id(MENU_CHECK_UPDATE, "Check for Updates").build(handle)?;
-        let app_menu = SubmenuBuilder::new(handle, "Prime Agent Session Manager").about(None).item(&check_update_item).separator().services().separator().hide().hide_others().show_all().separator().quit().build()?;
+        let app_menu = SubmenuBuilder::new(handle, "Prime-Agent Session Manager").about(None).item(&check_update_item).separator().services().separator().hide().hide_others().show_all().separator().quit().build()?;
         let edit_menu = SubmenuBuilder::new(handle, "Edit").undo().redo().separator().cut().copy().paste().select_all().build()?;
         let window_menu = SubmenuBuilder::new(handle, "Window").minimize().fullscreen().separator().close_window().build()?;
         menu.item(&app_menu).item(&edit_menu).item(&view_menu).item(&window_menu)
@@ -377,7 +377,7 @@ fn main() {
                 let ((initial_width, initial_height), (min_width, min_height)) = resolve_window_dimensions(monitor.as_ref());
 
                 let builder =
-                    tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into())).title("Prime Agent Session Manager").inner_size(initial_width, initial_height).min_inner_size(min_width, min_height).center().resizable(true).fullscreen(false).zoom_hotkeys_enabled(true);
+                    tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into())).title("Prime-Agent Session Manager").inner_size(initial_width, initial_height).min_inner_size(min_width, min_height).center().resizable(true).fullscreen(false).zoom_hotkeys_enabled(true);
 
                 #[cfg(target_os = "macos")]
                 let builder = builder.decorations(true).title_bar_style(tauri::TitleBarStyle::Overlay).hidden_title(true).traffic_light_position(tauri::Position::Logical(tauri::LogicalPosition::new(16.0, 22.0)));

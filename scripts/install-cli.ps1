@@ -1,4 +1,4 @@
-# Prime Agent Session Manager CLI installer for Windows
+# Prime-Agent Session Manager CLI installer for Windows
 # One-line install:
 #   iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.ps1 | iex
 
@@ -37,7 +37,7 @@ $Script:Language = Select-Language
 
 function Text($Key) {
     $zh = @{
-        Title = "Prime Agent Session Manager CLI 安装器"
+        Title = "Prime-Agent Session Manager CLI 安装器"
         Usage = @"
 用法:
   install-cli.ps1 [选项]
@@ -87,7 +87,7 @@ PowerShell 一键安装:
     }
 
     $en = @{
-        Title = "Prime Agent Session Manager CLI installer"
+        Title = "Prime-Agent Session Manager CLI installer"
         Usage = @"
 Usage:
   install-cli.ps1 [options]

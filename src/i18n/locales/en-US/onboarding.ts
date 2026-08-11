@@ -5,8 +5,8 @@ export const onboarding = {
   finish: 'Get Started',
   steps: {
     welcome: {
-      title: 'Welcome to Prime Agent Session Manager',
-      description: 'A local-first workbench for Prime Agent and your other coding-agent sessions. Let\'s take a quick tour of the key features.',
+      title: 'Welcome to Prime-Agent Session Manager',
+      description: 'A local-first workbench for Prime-Agent and your other coding-agent sessions. Let\'s take a quick tour of the key features.',
     },
     browse: {
       title: 'Browse Sessions by Project',

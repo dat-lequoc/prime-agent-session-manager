@@ -27,7 +27,7 @@ export function baseOptions(lang?: string): BaseLayoutProps {
             className="rounded-md"
             aria-hidden="true"
           />
-          <span>Prime Agent Session Manager</span>
+          <span>Prime-Agent Session Manager</span>
         </span>
       ),
     },

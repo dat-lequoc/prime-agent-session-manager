@@ -5,7 +5,7 @@ export const onboarding = {
   finish: '始める',
   steps: {
     welcome: {
-      title: 'Prime Agent Session Manager へようこそ',
+      title: 'Prime-Agent Session Manager へようこそ',
       description: 'Pi AI コーディングセッションの閲覧、検索、管理のための強力なツールです。主要機能を簡単にご紹介します。',
     },
     browse: {

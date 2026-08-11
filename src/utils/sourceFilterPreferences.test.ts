@@ -17,13 +17,13 @@ function createStorage(values: Record<string, string> = {}) {
 }
 
 describe("readInitialSourceFilterSlugs", () => {
-  it("defaults fresh state to Prime Agent sessions", () => {
+  it("defaults fresh state to Prime-Agent sessions", () => {
     expect(readInitialSourceFilterSlugs(createStorage())).toEqual(
       DEFAULT_SOURCE_FILTER_SLUGS,
     );
   });
 
-  it("migrates the previous implicit all-sources value to Prime Agent", () => {
+  it("migrates the previous implicit all-sources value to Prime-Agent", () => {
     expect(
       readInitialSourceFilterSlugs(
         createStorage({ [SOURCE_FILTER_STORAGE_KEY]: "[]" }),
@@ -52,7 +52,7 @@ describe("readInitialSourceFilterSlugs", () => {
     ).toEqual([]);
   });
 
-  it("falls back to Prime Agent when stored data is malformed", () => {
+  it("falls back to Prime-Agent when stored data is malformed", () => {
     expect(
       readInitialSourceFilterSlugs(
         createStorage({ [SOURCE_FILTER_STORAGE_KEY]: "not-json" }),

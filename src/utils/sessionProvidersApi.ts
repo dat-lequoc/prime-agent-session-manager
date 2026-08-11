@@ -14,7 +14,7 @@ interface RawSessionProviderInfo {
 const FALLBACK_PROVIDERS: SessionProviderInfo[] = [
   {
     slug: "prime-agent",
-    display_name: "Prime Agent",
+    display_name: "Prime-Agent",
     capabilities: { canScan: true, canConvertTarget: false },
   },
   {

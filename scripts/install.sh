@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Prime Agent Session Manager - Universal Installer
+# Prime-Agent Session Manager - Universal Installer
 # Supports: macOS (arm64/x64), Linux (x64), Windows (via Git Bash/WSL)
 # One-line install: curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install.sh | bash
 #        ./install.sh [--cli|--gui|--default] [--prefix <path>]
@@ -85,7 +85,7 @@ parse_args() {
         ;;
       --help|-h)
         cat << 'EOF'
-Prime Agent Session Manager Installer
+Prime-Agent Session Manager Installer
 
 USAGE:
     install.sh [OPTIONS]
@@ -241,7 +241,7 @@ download_gui_macos() {
     return 1
   fi
 
-  local app_name="Prime Agent Session Manager.app"
+  local app_name="Prime-Agent Session Manager.app"
   local target_path="${install_dir}/${app_name}"
 
   if [[ -d "$target_path" ]]; then
@@ -302,7 +302,7 @@ download_gui_linux() {
 main() {
   parse_args "$@"
 
-  log_info "Prime Agent Session Manager Installer"
+  log_info "Prime-Agent Session Manager Installer"
   echo ""
 
   local platform
@@ -359,7 +359,7 @@ main() {
   if [[ "$MODE" == "gui" ]] || [[ "$MODE" == "default" ]]; then
     if [[ "$platform" == macos-* ]]; then
       echo "GUI: Launch from Applications or run:"
-      echo "  ${CYAN}open '${DESKTOP_INSTALL_DIR}/Prime Agent Session Manager.app'${NC}"
+      echo "  ${CYAN}open '${DESKTOP_INSTALL_DIR}/Prime-Agent Session Manager.app'${NC}"
     fi
     echo ""
   fi

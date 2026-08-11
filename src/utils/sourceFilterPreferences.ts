@@ -26,7 +26,7 @@ function parseStoredSourceFilter(raw: string | null): string[] | null {
 }
 
 /**
- * Prime Agent is the default display scope. The version marker lets an
+ * Prime-Agent is the default display scope. The version marker lets an
  * explicit "all harnesses" choice (stored as []) survive future reloads while
  * migrating the previous implicit empty/default value to Prime-only once.
  */

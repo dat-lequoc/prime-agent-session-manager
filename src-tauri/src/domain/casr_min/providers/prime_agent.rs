@@ -23,11 +23,11 @@ pub fn read_session_from_str(path_hint: &Path, content: &str) -> Result<Canonica
 }
 
 pub fn render_session(_session: &CanonicalSession, _target_session_id: &str) -> Result<String, String> {
-    Err("Prime Agent is a scan-only provider".to_string())
+    Err("Prime-Agent is a scan-only provider".to_string())
 }
 
 pub fn build_target_path(_session: &CanonicalSession, _target_session_id: &str, _now: DateTime<Utc>) -> Result<PathBuf, String> {
-    Err("Prime Agent is a scan-only provider".to_string())
+    Err("Prime-Agent is a scan-only provider".to_string())
 }
 
 pub fn resume_command(target_path: &Path) -> String {

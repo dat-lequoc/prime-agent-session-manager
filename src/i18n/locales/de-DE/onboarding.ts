@@ -5,7 +5,7 @@ export const onboarding = {
   finish: 'Loslegen',
   steps: {
     welcome: {
-      title: 'Willkommen bei Prime Agent Session Manager',
+      title: 'Willkommen bei Prime-Agent Session Manager',
       description: 'Ein leistungsstarkes Tool zum Durchsuchen, Suchen und Verwalten Ihrer Pi-KI-Coding-Sitzungen. Lassen Sie uns einen kurzen Rundgang durch die wichtigsten Funktionen machen.',
     },
     browse: {

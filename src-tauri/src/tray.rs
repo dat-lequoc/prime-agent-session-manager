@@ -26,7 +26,7 @@ pub fn create_tray<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
     let _tray = TrayIconBuilder::with_id(TRAY_ID)
         .icon(icon)
         .icon_as_template(true) // macOS: adapt to dark/light menu bar
-        .tooltip("Prime Agent Session Manager")
+        .tooltip("Prime-Agent Session Manager")
         .menu(&menu)
         .show_menu_on_left_click(false) // left-click toggles window, not menu
         .on_menu_event(move |app, event| {
@@ -105,7 +105,7 @@ fn create_main_window<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
     let monitor = app.primary_monitor().ok().flatten();
     let ((w, h), (min_w, min_h)) = crate::resolve_window_dimensions(monitor.as_ref());
 
-    let mut builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into())).title("Prime Agent Session Manager").inner_size(w, h).min_inner_size(min_w, min_h).center().resizable(true).fullscreen(false).zoom_hotkeys_enabled(true);
+    let mut builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into())).title("Prime-Agent Session Manager").inner_size(w, h).min_inner_size(min_w, min_h).center().resizable(true).fullscreen(false).zoom_hotkeys_enabled(true);
 
     #[cfg(target_os = "macos")]
     {

@@ -8,7 +8,7 @@ import i18n from "@/i18n";
 import SourceFilterPicker from "./SourceFilterPicker";
 
 const SOURCE_OPTIONS = [
-  { slug: "prime-agent", label: "Prime Agent" },
+  { slug: "prime-agent", label: "Prime-Agent" },
   { slug: "codex", label: "Codex" },
 ];
 
@@ -29,9 +29,9 @@ describe("SourceFilterPicker", () => {
   it("shows the current harness directly and allows adding another", () => {
     render(<Harness />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Harness filter: Prime Agent/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Harness filter: Prime-Agent/ }));
     expect(
-      screen.getByRole("menuitemcheckbox", { name: "Prime Agent" }).getAttribute("aria-checked"),
+      screen.getByRole("menuitemcheckbox", { name: "Prime-Agent" }).getAttribute("aria-checked"),
     ).toBe("true");
 
     fireEvent.click(screen.getByRole("menuitemcheckbox", { name: "Codex" }));
@@ -45,7 +45,7 @@ describe("SourceFilterPicker", () => {
   it("offers an explicit all-harnesses choice", () => {
     render(<Harness />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Harness filter: Prime Agent/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Harness filter: Prime-Agent/ }));
     fireEvent.click(screen.getByRole("menuitemcheckbox", { name: "All harnesses" }));
 
     expect(screen.getByRole("button", { name: /Harness filter: All harnesses/ })).toBeTruthy();
