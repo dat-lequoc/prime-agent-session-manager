@@ -227,7 +227,7 @@ pi-session-cli update install --force
 > script instead:
 >
 > ```powershell
-> iwr -useb https://raw.githubusercontent.com/Dwsy/pi-session-manager/main/scripts/install-cli.ps1 | iex
+> gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
 > ```
 
 ## Troubleshooting

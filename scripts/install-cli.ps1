@@ -1,6 +1,7 @@
-# Pi Session Manager CLI installer for Windows
-# Usage: iwr -useb https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.ps1 | iex
-#        $env:PSM_INSTALL_YES="1"; iwr -useb https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.ps1 | iex
+# Prime Agent Session Manager CLI installer for Windows
+# Private repository usage:
+#   gh api -H "Accept: application/vnd.github.raw+json" `
+#     repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
 
 param(
     [string]$Prefix = $env:PSM_INSTALL_PREFIX,
@@ -14,11 +15,11 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$Repo = "dwsy/pi-session-manager"
+$Repo = "dat-lequoc/prime-agent-session-manager"
 $ApiUrl = "https://api.github.com/repos/$Repo"
 
 if ([string]::IsNullOrWhiteSpace($Prefix)) {
-    $Prefix = Join-Path $env:LOCALAPPDATA "PiSessionManager\bin"
+    $Prefix = Join-Path $env:LOCALAPPDATA "PrimeAgentSessionManager\bin"
 }
 
 if ([string]::IsNullOrWhiteSpace($Version)) {
@@ -37,24 +38,24 @@ $Script:Language = Select-Language
 
 function Text($Key) {
     $zh = @{
-        Title = "Pi Session Manager CLI 安装器"
+        Title = "Prime Agent Session Manager CLI 安装器"
         Usage = @"
 用法:
   install-cli.ps1 [选项]
 
 选项:
   -Yes              非交互安装，使用默认值
-  -Prefix <路径>    安装目录，默认 `%LOCALAPPDATA`%\PiSessionManager\bin
+  -Prefix <路径>    安装目录，默认 `%LOCALAPPDATA`%\PrimeAgentSessionManager\bin
   -Version <版本>   指定 GitHub Release tag，默认 latest
   -Lang <zh|en>     指定显示语言
   -NoVerify         安装后跳过 pi-session-cli --version 验证
   -Help             显示帮助
 
 curl / PowerShell 一键安装:
-  iwr -useb https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.ps1 | iex
+  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
 
 非交互安装:
-  `$env:PSM_INSTALL_YES="1"; iwr -useb https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.ps1 | iex
+  `$env:PSM_INSTALL_YES="1"; gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
 
 环境变量:
   PSM_INSTALL_YES=1
@@ -87,24 +88,24 @@ curl / PowerShell 一键安装:
     }
 
     $en = @{
-        Title = "Pi Session Manager CLI installer"
+        Title = "Prime Agent Session Manager CLI installer"
         Usage = @"
 Usage:
   install-cli.ps1 [options]
 
 Options:
   -Yes              Non-interactive install with defaults
-  -Prefix <path>    Install directory, default `%LOCALAPPDATA`%\PiSessionManager\bin
+  -Prefix <path>    Install directory, default `%LOCALAPPDATA`%\PrimeAgentSessionManager\bin
   -Version <tag>    GitHub Release tag, default latest
   -Lang <zh|en>     Display language
   -NoVerify         Skip pi-session-cli --version after install
   -Help             Show help
 
 curl / PowerShell one-line install:
-  iwr -useb https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.ps1 | iex
+  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
 
 Non-interactive install:
-  `$env:PSM_INSTALL_YES="1"; iwr -useb https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.ps1 | iex
+  `$env:PSM_INSTALL_YES="1"; gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
 
 Environment variables:
   PSM_INSTALL_YES=1
@@ -168,7 +169,20 @@ function Get-Platform {
     return "unsupported"
 }
 
+function Test-GitHubCliAuth {
+    if (-not (Get-Command gh -ErrorAction SilentlyContinue)) { return $false }
+    & gh auth token *> $null
+    return $LASTEXITCODE -eq 0
+}
+
 function Get-LatestVersion {
+    if (Test-GitHubCliAuth) {
+        $tag = & gh release view --repo $Repo --json tagName --jq .tagName 2>$null
+        if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($tag)) {
+            return $tag.Trim()
+        }
+    }
+
     $latestUrl = "https://github.com/$Repo/releases/latest"
 
     try {
@@ -262,17 +276,26 @@ function Install-Cli($ReleaseVersion, $Platform) {
         $targetPath = Join-Path $script:Prefix "pi-session-cli.exe"
 
         Write-Info "$(Text 'Downloading'): $assetName"
-        try {
-            Invoke-WebRequest -Uri $downloadUrl -OutFile $tmpFile -UseBasicParsing
-        } catch {
-            Write-Fail "$(Text 'DownloadFailed'): $downloadUrl"
-            exit 1
-        }
+        if (Test-GitHubCliAuth) {
+            & gh release download $ReleaseVersion --repo $Repo --pattern $assetName --dir $tmpdir --clobber
+            if ($LASTEXITCODE -ne 0) {
+                Write-Fail "$(Text 'DownloadFailed'): $Repo $ReleaseVersion $assetName"
+                exit 1
+            }
+            & gh release download $ReleaseVersion --repo $Repo --pattern "${assetName}.sha256" --dir $tmpdir --clobber 2>$null
+        } else {
+            try {
+                Invoke-WebRequest -Uri $downloadUrl -OutFile $tmpFile -UseBasicParsing
+            } catch {
+                Write-Fail "$(Text 'DownloadFailed'): $downloadUrl"
+                exit 1
+            }
 
-        try {
-            Invoke-WebRequest -Uri $shaUrl -OutFile $shaFile -UseBasicParsing
-        } catch {
-            # Checksum is optional for older releases.
+            try {
+                Invoke-WebRequest -Uri $shaUrl -OutFile $shaFile -UseBasicParsing
+            } catch {
+                # Checksum is optional for older releases.
+            }
         }
 
         Test-Checksum -FilePath $tmpFile -ChecksumPath $shaFile

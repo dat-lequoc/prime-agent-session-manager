@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-REPO="Dwsy/pi-session-manager"
+REPO="dat-lequoc/prime-agent-session-manager"
 INTERVAL=30
 LIMIT=20
 SHA=""
@@ -45,7 +45,7 @@ Usage:
   scripts/monitor-gh-runs.sh [options]
 
 Options:
-  --repo <owner/name>       GitHub repository (default: Dwsy/pi-session-manager)
+  --repo <owner/name>       GitHub repository (default: dat-lequoc/prime-agent-session-manager)
   --sha <commit>            Commit SHA to monitor (default: current HEAD)
   --interval <seconds>      Poll interval in seconds (default: 30)
   --limit <n>               Max runs fetched per poll (default: 20)

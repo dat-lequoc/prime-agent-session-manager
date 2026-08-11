@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Pi Session Manager CLI installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.sh | bash
-#        curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.sh | bash -s -- --yes
+# Prime Agent Session Manager CLI installer
+# Private repository usage:
+#   gh api -H "Accept: application/vnd.github.raw+json" \
+#     repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash
 
 set -euo pipefail
 
-REPO="dwsy/pi-session-manager"
+REPO="dat-lequoc/prime-agent-session-manager"
 API_URL="https://api.github.com/repos/${REPO}"
 DEFAULT_PREFIX="${INSTALL_PREFIX:-$HOME/.local/bin}"
 PREFIX="$DEFAULT_PREFIX"
@@ -30,7 +31,7 @@ fi
 msg() {
   local key="$1"
   case "$LANGUAGE:$key" in
-    zh:title) echo "Pi Session Manager CLI 安装器" ;;
+    zh:title) echo "Prime Agent Session Manager CLI 安装器" ;;
     zh:usage) cat <<'EOF'
 用法:
   install-cli.sh [选项]
@@ -45,9 +46,9 @@ msg() {
   --help             显示帮助
 
 示例:
-  curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.sh | bash
-  curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.sh | bash -s -- --yes
-  curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.sh | bash -s -- --prefix /usr/local/bin --lang en
+  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash
+  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash -s -- --yes
+  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash -s -- --prefix /usr/local/bin --lang en
 EOF
       ;;
     zh:unsupported) echo "不支持的平台" ;;
@@ -76,7 +77,7 @@ EOF
     zh:verify_fail) echo "安装完成，但验证命令失败" ;;
     zh:done) echo "CLI 安装完成" ;;
     zh:run) echo "运行" ;;
-    en:title) echo "Pi Session Manager CLI installer" ;;
+    en:title) echo "Prime Agent Session Manager CLI installer" ;;
     en:usage) cat <<'EOF'
 Usage:
   install-cli.sh [options]
@@ -91,9 +92,9 @@ Options:
   --help             Show help
 
 Examples:
-  curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.sh | bash
-  curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.sh | bash -s -- --yes
-  curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.sh | bash -s -- --prefix /usr/local/bin --lang en
+  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash
+  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash -s -- --yes
+  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash -s -- --prefix /usr/local/bin --lang en
 EOF
       ;;
     en:unsupported) echo "Unsupported platform" ;;
@@ -199,6 +200,14 @@ detect_platform() {
 fetch_latest_version() {
   local latest_url response version
 
+  if command -v gh >/dev/null 2>&1 && gh auth token >/dev/null 2>&1; then
+    version=$(gh release view --repo "$REPO" --json tagName --jq .tagName 2>/dev/null || true)
+    if [[ -n "$version" ]]; then
+      printf '%s\n' "$version"
+      return
+    fi
+  fi
+
   latest_url=$(curl -fsSL -o /dev/null -w '%{url_effective}' "https://github.com/${REPO}/releases/latest" 2>/dev/null || true)
   version=$(printf '%s\n' "$latest_url" | sed -n 's#.*/releases/tag/\([^/?#]*\).*#\1#p' | sed -n '1p')
 
@@ -213,6 +222,30 @@ fetch_latest_version() {
   fi
 
   printf '%s\n' "$version"
+}
+
+download_release_asset() {
+  local version="$1"
+  local asset_name="$2"
+  local output_dir="$3"
+
+  if command -v gh >/dev/null 2>&1 && gh auth token >/dev/null 2>&1; then
+    gh release download "$version" \
+      --repo "$REPO" \
+      --pattern "$asset_name" \
+      --dir "$output_dir" \
+      --clobber
+    gh release download "$version" \
+      --repo "$REPO" \
+      --pattern "${asset_name}.sha256" \
+      --dir "$output_dir" \
+      --clobber 2>/dev/null || true
+    return
+  fi
+
+  local download_url="https://github.com/${REPO}/releases/download/${version}/${asset_name}"
+  curl -fsSL "$download_url" -o "${output_dir}/${asset_name}"
+  curl -fsSL "${download_url}.sha256" -o "${output_dir}/${asset_name}.sha256" 2>/dev/null || true
 }
 
 has_tty() {
@@ -401,20 +434,17 @@ main() {
   prepare_install_dir
 
   local asset_name="pi-session-cli-${platform}"
-  local download_url="https://github.com/${REPO}/releases/download/${version}/${asset_name}"
-  local sha_url="${download_url}.sha256"
   local tmpdir
   tmpdir=$(mktemp -d)
   TMPDIR_TO_CLEAN="$tmpdir"
   trap cleanup_tmpdir EXIT
 
   info "$(msg downloading): ${CYAN}${asset_name}${NC}"
-  if ! curl -fsSL "$download_url" -o "${tmpdir}/${asset_name}"; then
-    err "$(msg download_failed): $download_url"
+  if ! download_release_asset "$version" "$asset_name" "$tmpdir"; then
+    err "$(msg download_failed): ${REPO} ${version} ${asset_name}"
     exit 1
   fi
 
-  curl -fsSL "$sha_url" -o "${tmpdir}/${asset_name}.sha256" 2>/dev/null || true
   verify_checksum "${tmpdir}/${asset_name}" "${tmpdir}/${asset_name}.sha256"
 
   local target_path="${PREFIX}/pi-session-cli"

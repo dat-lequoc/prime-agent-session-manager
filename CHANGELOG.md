@@ -6,10 +6,17 @@ All notable changes to Pi Session Manager will be documented in this file.
 
 ### Added
 
+- Documented the deployed read-only Session Manager, Agent Harness Arena, Prime native-session links, source filters, RLM/IPython rendering, and private-repository install workflow.
 - **OMP (oh-my-pi) session support** — the Pi fork's sessions (`~/.omp/agent/sessions`) are now scanned, parsed, and shown with their own source badge/icon alongside Pi and other external agents
   - Added `Omp` to the backend provider registry (`ProviderKind` / `SessionBridgeSource`) with `omp --session` resume and `~/.omp/...` session roots
   - Added `omp` binary to export command candidates
   - Added OMP source detection, AgentIcon (from the omp icon.svg), i18n strings, and resume-target support in the frontend
+
+### Changed
+
+- Reworked the English and Chinese READMEs around Prime Agent as the default runtime while preserving explicit MIT attribution to Pi Session Manager and Dwsy.
+- Pointed CLI/desktop installers, updater channels, release metadata, website download links, and repository tooling at `dat-lequoc/prime-agent-session-manager`.
+- Added authenticated `gh release download` support so installers can access private fork releases without falling back to the upstream project.
 
 ## [0.7.0] - 2026-07-14
 

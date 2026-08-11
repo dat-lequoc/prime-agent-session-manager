@@ -1,4 +1,4 @@
-# Pi Session Manager 安装脚本总结
+# Prime Agent Session Manager 安装脚本总结
 
 ## 文件位置
 - `scripts/install-cli.sh` — macOS/Linux CLI 一键安装脚本，支持引导式安装、`xattr` quarantine 清理、中文/英文
@@ -20,16 +20,16 @@
 ### macOS / Linux
 ```bash
 # CLI 一键安装（引导式，自动语言）
-curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.sh | bash
+gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash
 
 # CLI 非交互安装
-curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.sh | bash -s -- --yes
+gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash -s -- --yes
 
 # CLI 指定语言和安装路径
-curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.sh | bash -s -- --lang zh --prefix ~/.local/bin
+gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash -s -- --lang zh --prefix ~/.local/bin
 
 # 通用安装（默认安装 CLI + GUI）
-curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install.sh | bash
+gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install.sh | bash
 
 # 仅安装 GUI
 ./install.sh --gui
@@ -38,16 +38,16 @@ curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/script
 ### Windows
 ```powershell
 # CLI 一键安装（引导式，自动语言）
-iwr -useb https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.ps1 | iex
+gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
 
 # CLI 非交互安装
-$env:PSM_INSTALL_YES="1"; iwr -useb https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.ps1 | iex
+$env:PSM_INSTALL_YES="1"; gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
 
 # CLI 指定语言和安装路径
-$env:PSM_INSTALL_LANG="zh"; $env:PSM_INSTALL_PREFIX="C:\Tools"; iwr -useb https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.ps1 | iex
+$env:PSM_INSTALL_LANG="zh"; $env:PSM_INSTALL_PREFIX="C:\Tools"; gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
 
 # 通用安装（默认安装 CLI + GUI）
-iwr -useb https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install.ps1 | iex
+gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install.ps1 | iex
 
 # 仅安装 GUI
 .\install.ps1 -Mode gui
@@ -62,9 +62,9 @@ iwr -useb https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts
 - [x] build-cli.mjs 语法检查通过
 - [x] GitHub release assets 命名匹配
 - [x] CLI 产物命名: `pi-session-cli-{platform}`
-- [x] macOS GUI: `Pi.Session.Manager_{version}_aarch64/x64.dmg`
-- [x] Linux GUI: `Pi.Session.Manager_{version}_amd64.AppImage`
-- [x] Windows GUI: `Pi.Session.Manager_{version}_x64-setup.exe`
+- [x] macOS GUI: `Prime.Agent.Session.Manager_{version}_aarch64/x64.dmg`
+- [x] Linux GUI: `Prime.Agent.Session.Manager_{version}_amd64.AppImage`
+- [x] Windows GUI: `Prime.Agent.Session.Manager_{version}_x64-setup.exe`
 
 ## 注意事项
 
