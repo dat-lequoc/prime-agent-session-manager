@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen, Download } from 'lucide-react';
 import { t } from '@/lib/landing-i18n';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
-const demoHref = 'https://dwsy.github.io/pi-session-manager/demo/';
+const demoHref = 'https://sessions.178.104.6.186.sslip.io/#/projects';
 
 export function Hero({ lang = 'en' }: { lang?: string }) {
   const i = t(lang).hero;

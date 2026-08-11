@@ -12,14 +12,14 @@ import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 ## Desktop App
 
-Download the latest release from [GitHub Releases](https://github.com/Dwsy/pi-session-manager/releases).
+Download the latest fork release from [GitHub Releases](https://github.com/dat-lequoc/prime-agent-session-manager/releases). This private repository requires an authenticated GitHub account.
 
 ### macOS
 
 | Chip | File |
 |------|------|
-| Apple Silicon (M1/M2/M3/M4) | `Pi.Session.Manager_*_aarch64.dmg` |
-| Intel | `Pi.Session.Manager_*_x64.dmg` |
+| Apple Silicon (M1/M2/M3/M4) | `Prime.Agent.Session.Manager_*_aarch64.dmg` |
+| Intel | `Prime.Agent.Session.Manager_*_x64.dmg` |
 
 Open the `.dmg` and drag Prime Agent Session Manager to your Applications folder. On first launch, you may need to right-click → Open to bypass Gatekeeper.
 
@@ -27,8 +27,8 @@ Open the `.dmg` and drag Prime Agent Session Manager to your Applications folder
 
 | Format | File |
 |--------|------|
-| Installer (recommended) | `Pi.Session.Manager_*_x64-setup.exe` |
-| MSI | `Pi.Session.Manager_*_x64-setup.msi` |
+| Installer (recommended) | `Prime.Agent.Session.Manager_*_x64-setup.exe` |
+| MSI | `Prime.Agent.Session.Manager_*_x64-setup.msi` |
 
 Run the installer and follow the prompts. WebView2 is required (pre-installed on Windows 11).
 
@@ -56,7 +56,7 @@ sudo rpm -i pi-session-manager_*_x86_64.rpm
 
 The `pi-session-cli` binary runs the backend without a GUI window — ideal for servers, remote access, or Docker deployments.
 
-Download `pi-session-cli` from the [Releases](https://github.com/Dwsy/pi-session-manager/releases) page (listed alongside the desktop builds).
+Download `pi-session-cli` from the [Releases](https://github.com/dat-lequoc/prime-agent-session-manager/releases) page (listed alongside the desktop builds).
 
 ```bash
 chmod +x pi-session-cli
@@ -128,8 +128,8 @@ sudo dnf install webkit2gtk4.1-devel libappindicator-gtk3-devel librsvg2-devel p
 ### Clone and install
 
 ```bash
-git clone https://github.com/Dwsy/pi-session-manager.git
-cd pi-session-manager
+gh repo clone dat-lequoc/prime-agent-session-manager
+cd prime-agent-session-manager
 pnpm install
 ```
 </Step>

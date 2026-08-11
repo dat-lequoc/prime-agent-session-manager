@@ -5,132 +5,196 @@
 </p>
 
 <p align="center">
-  <strong>Your local command center for Prime Agent and coding-agent sessions.</strong>
+  <strong>A local-first command center for Prime Agent and coding-agent sessions.</strong>
 </p>
 
 <p align="center">
-  Browse, search, understand, and continue work across Prime Agent, Pi, Claude Code, Codex, and other coding agents.
+  Inspect Prime Agent traces, RLM activity, persistent IPython state, tool calls,
+  thinking, branches, token usage, and benchmark runs without flattening the
+  details that make the session useful.
 </p>
 
 > [!IMPORTANT]
-> **Prime Agent Session Manager** is a private development fork of
+> Prime Agent Session Manager is an MIT-licensed private fork of
 > [Pi Session Manager](https://github.com/Dwsy/pi-session-manager) by
 > [Dwsy](https://github.com/Dwsy). The original architecture, product foundation,
-> and upstream implementation are credited to Dwsy and the upstream contributors.
-> This fork is focused on first-class Prime Agent support while preserving
-> compatibility with the upstream project.
+> and upstream implementation remain credited to Dwsy and the upstream
+> contributors. See [NOTICE.md](NOTICE.md) for full provenance.
 
 <p align="center">
+  <a href="https://sessions.178.104.6.186.sslip.io/#/projects">Live session manager</a> ·
+  <a href="https://arena.178.104.6.186.sslip.io">Agent Harness Arena</a> ·
   <a href="https://github.com/dat-lequoc/prime-agent-session-manager">Source</a> ·
   <a href="https://github.com/Dwsy/pi-session-manager">Upstream</a> ·
-  <a href="https://dwsy.github.io/pi-session-manager/">Upstream Documentation</a> ·
-  <a href="README.zh.md">中文</a> ·
-  <a href="https://dwsy.github.io/pi-session-manager/demo/">Demo</a> ·
-  <a href="https://dwsy.github.io/pi-session-manager/dataset/">Dataset</a> ·
-  <a href="extensions/README.md">Extensions</a>
+  <a href="README.zh.md">中文</a>
 </p>
 
-## UI Preview
+## Preview
 
-| Home | Session Page |
-|------|--------------|
-| ![Home](https://github.com/user-attachments/assets/d28aefb4-beed-4228-ac55-4d11164bc2f1) | ![Session Page](https://github.com/user-attachments/assets/b4b645a8-c58e-4568-b0e7-567f4e34ba7a) |
+| Prime session inspection | Agent Harness Arena |
+|---|---|
+| ![Prime Agent session with the harness picker, RLM runtime, IPython state, tools, and thinking](https://github.com/user-attachments/assets/33c86959-e9db-49e7-9a69-62f162ffcb90) | ![Agent Harness Arena benchmark run with one-click session inspection](https://github.com/user-attachments/assets/068a4d8a-15f6-410f-acca-402d0c0ff51d) |
 
-| Session Tree | Kanban |
-|--------------|--------|
-| ![Session Tree](https://github.com/user-attachments/assets/fd026277-2de2-4e41-ac27-37a68d8c8322) | ![Kanban](https://github.com/user-attachments/assets/fc7d3adc-ab0d-475a-827c-9acb8ca4498e) |
+## What this fork adds
 
+- First-class discovery of Prime Agent sessions in `~/.prime/agent/sessions` and artifacts in `~/.prime/agent/session-artifacts`.
+- Prime-aware rendering for RLM/refinement activity, persistent IPython state, tool results, thinking, token usage, and session metadata.
+- A front-page harness picker beside project search. Prime Agent is selected by default; Pi, Codex, Claude Code, OMP, OpenCode, Gemini CLI, and other sources can be added with checkboxes.
+- Stable native-session links at `/#/open/<native-session-id>` for opening benchmark runs directly from Agent Harness Arena.
+- A deployable read-only mode for shared inspection environments: `PSM_READ_ONLY=1` blocks terminal, deletion, settings mutation, plugin filesystem access, and model invocation while preserving session browsing and search.
+
+## Open the deployed UI
+
+| Surface | URL | Purpose |
+|---|---|---|
+| Session Manager | [sessions.178.104.6.186.sslip.io](https://sessions.178.104.6.186.sslip.io/#/projects) | Browse Prime sessions and optionally enable other harnesses. |
+| Agent Harness Arena | [arena.178.104.6.186.sslip.io](https://arena.178.104.6.186.sslip.io) | Compare benchmark runs and open native session traces in one click. |
+| Example Prime session | [Open session](https://sessions.178.104.6.186.sslip.io/#/open/019fef29-0f05-7710-b356-aef344d972a2) | See the Prime-specific session view directly. |
+
+The hosted Session Manager is intentionally read-only. Its health endpoint is
+available at `https://sessions.178.104.6.186.sslip.io/health`.
 
 ## Install
 
-### Desktop App
+This repository is private. Use an authenticated GitHub CLI session for cloning
+or downloading release assets:
 
-Fork-specific releases are not published yet. Until then, the commands below
-install the compatible upstream build from Dwsy's release channel.
+```bash
+gh auth status
+```
 
-### CLI / Headless Server
+No fork release is published yet. The source build below is the working install
+path today; the authenticated release installer is ready for the first fork
+release and will never silently download the upstream build.
+
+### Build the CLI/headless server from source
+
+Requirements: Node.js 22, pnpm, Rust 1.97+, and GitHub CLI access to this repo.
+
+```bash
+gh repo clone dat-lequoc/prime-agent-session-manager
+cd prime-agent-session-manager
+corepack enable
+pnpm install --frozen-lockfile
+pnpm run build:cli
+./target/release/pi-session-cli
+```
+
+Then open [http://127.0.0.1:52131/#/projects](http://127.0.0.1:52131/#/projects).
+The server embeds the production web UI and serves HTTP, WebSocket, and API
+traffic on the same port.
+
+### Install a published CLI release
+
+The installer uses `gh release download` when GitHub CLI authentication is
+available, which also works with this private repository.
 
 macOS / Linux:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.sh | bash
+gh api -H "Accept: application/vnd.github.raw+json" \
+  repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash
 ```
 
 Windows PowerShell:
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install-cli.ps1 | iex
+gh api -H "Accept: application/vnd.github.raw+json" `
+  repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
 ```
 
-The installers download the latest `pi-session-cli`, verify SHA256 when available, configure the install path, and handle platform quarantine metadata.
+The installed executable keeps the compatible name `pi-session-cli`. Installer
+options include `--version`, `--prefix`, `--yes`, and `--no-verify`; run the
+script with `--help` for the complete list.
 
-## Core Capabilities
+### Desktop development
 
-- Scan and index sessions from Pi and external sources including Claude Code, Codex, OpenCode, Gemini CLI, Cursor, and Antigravity.
-- Browse by list, project, tree, and kanban views; organize with tags, favorites, names, and metadata.
-- Search across sessions and in-session messages with full-text indexing, highlights, labels, and source filters.
-- Reconstruct work through conversation trees, Branch Atlas, tool-call rendering, compaction context, and trace views.
-- Resume, convert, or export sessions and hand work back to the original terminal or agent workflow.
-- Review activity through heatmaps, token trends, model usage, cost statistics, and session datasets.
-- Run as a Tauri desktop app, a browser-accessible headless server with HTTP/WebSocket APIs, or static demo and dataset builds.
-- Use the built-in `en-US`, `zh-CN`, `ja-JP`, `de-DE`, `fr-FR`, and `es-ES` language packs.
+```bash
+pnpm install --frozen-lockfile
+pnpm run tauri:dev
+```
 
+Build production desktop bundles with:
 
+```bash
+pnpm run tauri:build
+```
 
-## The Idea
+## Run modes
 
-Coding agent sessions are more than disposable chat logs. They contain decisions, commands, failed attempts, tool traces, and the context needed to continue unfinished work.
+| Mode | Command | URL |
+|---|---|---|
+| Frontend only | `pnpm run dev` | `http://127.0.0.1:1420` |
+| Desktop app | `pnpm run tauri:dev` | Tauri window with Vite HMR |
+| CLI development | `pnpm run cli:dev` | Vite on `1420`, CLI backend on `52131` |
+| Built headless server | `./target/release/pi-session-cli` | `http://127.0.0.1:52131` |
+| Read-only headless server | `PSM_READ_ONLY=1 ./target/release/pi-session-cli` | `http://127.0.0.1:52131` |
 
-Prime Agent Session Manager treats those sessions as durable, inspectable project artifacts. It indexes and organizes existing session sources while leaving execution to the agents and terminals that created them.
+The CLI reads its bind address, port, and authentication settings from the
+server section of `~/.pi/pi-session-manager/config.json`. The default HTTP port
+is `52131`. Keep authentication enabled whenever the service is reachable from
+another machine, and place public deployments behind TLS.
 
-> PSM manages the work around the agent, not the agent itself.
+## Routes and Arena integration
 
-| Session workspace | Knowledge layer | Observability layer |
-|-------------------|-----------------|---------------------|
-| Organize, tag, search, export, and resume past work. | Find decisions and context across sessions and datasets. | Inspect branches, tool calls, traces, activity, tokens, and cost. |
+The web application uses hash routes so links work in both Tauri and the
+embedded CLI server:
 
-## What PSM Is -- and Is Not
+| Route | Description |
+|---|---|
+| `/#/projects` | Project dashboard and visible harness filter. |
+| `/#/projects/<project-path>` | Project-scoped sessions. |
+| `/#/sessions/<session-id>` | Indexed session detail. |
+| `/#/open/<native-session-id>` | Native session lookup used by Agent Harness Arena. |
+| `/#/dashboard` | Cross-session analytics. |
 
-| PSM is | PSM is not |
-|--------|------------|
-| A local-first library for coding-session history | Another Codex-style agent GUI |
-| A cross-agent index, viewer, and continuity layer | A replacement for Pi, Claude Code, Codex, or their native workflows |
-| An extensible surface for understanding session artifacts | A chat shell that requires AI features for basic session management |
+Arena stages only inspectable session artifacts and links a benchmark run to its
+native session ID. The production manager runs with `PSM_READ_ONLY=1`, so a
+one-click inspection cannot start terminals, delete sessions, or mutate the
+staged benchmark data.
 
+## Core capabilities
 
+- Browse sessions by list, project, tree, dashboard, and Kanban views.
+- Search across sessions and messages with full-text indexing, highlights, labels, and source filters.
+- Inspect conversation branches, compaction context, tool calls, traces, model usage, token trends, cost, and activity heatmaps.
+- Resume supported local sessions in their original agent workflow when running outside read-only mode.
+- Export sessions and use the HTTP/WebSocket APIs for integrations.
+- Extend the browser with built-in, npm, local-file, or development plugins.
 
-## Extension Boundaries
+Prime Agent is the default source for this fork, while compatibility is retained
+for Pi, OMP, Claude Code, Codex, OpenCode, Gemini CLI, Cursor, Antigravity, and
+other providers supported by the upstream session bridge.
 
-PSM keeps agent execution and session management separate through two extension layers:
+## Development and validation
 
-| Layer | Purpose |
-|------|---------|
-| Pi Agent extensions | Connect Pi runtime commands, status, naming, search, and resume workflows to the session library. |
-| PSM browser plugins | Add views, renderers, search, analysis, records, commands, and optional agent-assisted workflows around existing sessions. |
+```bash
+pnpm run build
+pnpm exec vitest run
+pnpm run build:cli
+cargo fmt --all --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+```
 
-Agent-assisted summaries, semantic search, review, and side chat are optional plugins. The core product remains useful without them: sessions can still be browsed, searched, understood, organized, and resumed.
+Additional architecture and plugin documentation:
 
-PSM browser plugins can come from built-in packages, npm packages, local `.js` / `.mjs` files, or local development projects. Permissions are declared in each manifest and surfaced in Settings -> PSM Plugins.
+- [Agent guide](AGENTS.md)
+- [Development guide](agent-docs/04-development.md)
+- [Extension overview](extensions/README.md)
+- [Plugin SDK](docs/PSM_PLUGIN_SDK.md)
 
-Start here:
+## License and credit
 
-- [extensions/README.md](extensions/README.md) - extension overview and development workflow.
-- [agent-docs/06-plugins.md](agent-docs/06-plugins.md) - plugin authoring boundaries and verification.
-- [docs/PSM_PLUGIN_SDK.md](docs/PSM_PLUGIN_SDK.md) - public browser-plugin SDK contract.
-- [docs/PSM_PLUGIN_SDK_CAPABILITY_AUDIT.md](docs/PSM_PLUGIN_SDK_CAPABILITY_AUDIT.md) - current capabilities and remaining gaps.
+Licensed under the MIT License. This fork may be modified and rebranded, but the
+license notice and upstream attribution must be preserved. See [LICENSE](LICENSE)
+and [NOTICE.md](NOTICE.md).
 
-## License
+## macOS Gatekeeper note
 
-The upstream README identifies the project as MIT-licensed. See
-[NOTICE.md](NOTICE.md) for provenance and attribution. Original upstream work
-remains credited to Dwsy and the upstream contributors.
-
-## macOS Installation Note
-
-If macOS shows "App is damaged and can't be opened", run:
+For a locally built or unsigned app, macOS may require quarantine metadata to be
+removed:
 
 ```bash
 sudo xattr -rd com.apple.quarantine "/Applications/Prime Agent Session Manager.app"
 ```
-
-This is standard Gatekeeper behavior for non-App-Store apps. No certificate is required for personal use.

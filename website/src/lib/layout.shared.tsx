@@ -25,7 +25,7 @@ export function baseOptions(lang?: string): BaseLayoutProps {
       { text: nav.download, url: `${prefix}/#download` },
       {
         text: nav.demo,
-        url: 'https://dwsy.github.io/pi-session-manager/demo/',
+        url: 'https://sessions.178.104.6.186.sslip.io/#/projects',
         external: true,
       },
     ],

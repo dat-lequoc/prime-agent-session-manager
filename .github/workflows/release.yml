@@ -95,7 +95,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: "Pi Session Manager ${{ github.ref_name }}"
+          releaseName: "Prime Agent Session Manager ${{ github.ref_name }}"
           releaseBody: ""
           releaseDraft: true
           prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
@@ -338,7 +338,7 @@ jobs:
               flags=re.MULTILINE | re.DOTALL,
           )
 
-          body = [f'## Pi Session Manager {version}', '']
+          body = [f'## Prime Agent Session Manager {version}', '']
           if match:
               lines = match.group(0).strip().splitlines()
               body.extend(lines[1:])
@@ -382,8 +382,8 @@ jobs:
               '',
               '| Platform | File |',
               '|----------|------|',
-              f'| macOS (Apple Silicon) | `Pi.Session.Manager_{version}_aarch64.dmg` |',
-              f'| macOS (Intel) | `Pi.Session.Manager_{version}_x64.dmg` |',
+              f'| macOS (Apple Silicon) | `Prime.Agent.Session.Manager_{version}_aarch64.dmg` |',
+              f'| macOS (Intel) | `Prime.Agent.Session.Manager_{version}_x64.dmg` |',
               '| Windows | `.exe` / `.msi` installer |',
               '| Linux | `.deb` / `.rpm` / `.AppImage` |',
               '',
@@ -426,7 +426,7 @@ jobs:
               '',
               '- **Desktop**: macOS 11+, Windows 10+, or Linux with WebKitGTK 4.1',
               '- **CLI**: No special requirements (statically links SQLite)',
-              '- [Pi](https://github.com/nickviper/pi-mono) for terminal integration',
+              '- [Pi](https://github.com/badlogic/pi-mono) for Pi terminal integration',
           ])
 
           Path('release-notes.md').write_text('\n'.join(body).rstrip() + '\n', encoding='utf-8')
@@ -439,7 +439,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
-          name: "Pi Session Manager ${{ github.ref_name }}"
+          name: "Prime Agent Session Manager ${{ github.ref_name }}"
           body_path: release-notes.md
           draft: false
           prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}

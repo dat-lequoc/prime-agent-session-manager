@@ -50,10 +50,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build static demo page
-        run: pnpm run build:demo --base /pi-session-manager/demo/
+        run: pnpm run build:demo --base /prime-agent-session-manager/demo/
 
       - name: Build static dataset page
-        run: pnpm run build:dataset --base /pi-session-manager/dataset/
+        run: pnpm run build:dataset --base /prime-agent-session-manager/dataset/
 
       - name: Merge demo and dataset into website artifact
         run: |

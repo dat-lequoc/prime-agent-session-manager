@@ -12,14 +12,14 @@ import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 ## 桌面应用
 
-从 [GitHub Releases](https://github.com/Dwsy/pi-session-manager/releases) 下载最新版本。
+从 [GitHub Releases](https://github.com/dat-lequoc/prime-agent-session-manager/releases) 下载本分支最新版本。此私有仓库需要已授权的 GitHub 账号。
 
 ### macOS
 
 | 芯片 | 文件 |
 |------|------|
-| Apple Silicon (M1/M2/M3/M4) | `Pi.Session.Manager_*_aarch64.dmg` |
-| Intel | `Pi.Session.Manager_*_x64.dmg` |
+| Apple Silicon (M1/M2/M3/M4) | `Prime.Agent.Session.Manager_*_aarch64.dmg` |
+| Intel | `Prime.Agent.Session.Manager_*_x64.dmg` |
 
 打开 `.dmg` 文件，将 Prime Agent Session Manager 拖入应用程序文件夹。首次启动时，可能需要右键点击 → 打开以绕过 Gatekeeper。
 
@@ -27,8 +27,8 @@ import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 | 格式 | 文件 |
 |------|------|
-| 安装程序（推荐） | `Pi.Session.Manager_*_x64-setup.exe` |
-| MSI | `Pi.Session.Manager_*_x64-setup.msi` |
+| 安装程序（推荐） | `Prime.Agent.Session.Manager_*_x64-setup.exe` |
+| MSI | `Prime.Agent.Session.Manager_*_x64-setup.msi` |
 
 运行安装程序并按提示操作。需要 WebView2（Windows 11 已预装）。
 
@@ -56,7 +56,7 @@ sudo rpm -i pi-session-manager_*_x86_64.rpm
 
 `pi-session-cli` 二进制文件可在无 GUI 窗口的情况下运行后端——适用于服务器、远程访问或 Docker 部署。
 
-从 [Releases](https://github.com/Dwsy/pi-session-manager/releases) 页面下载 `pi-session-cli`（与桌面版一同发布）。
+从 [Releases](https://github.com/dat-lequoc/prime-agent-session-manager/releases) 页面下载 `pi-session-cli`（与桌面版一同发布）。
 
 ```bash
 chmod +x pi-session-cli
@@ -128,8 +128,8 @@ sudo dnf install webkit2gtk4.1-devel libappindicator-gtk3-devel librsvg2-devel p
 ### 克隆并安装依赖
 
 ```bash
-git clone https://github.com/Dwsy/pi-session-manager.git
-cd pi-session-manager
+gh repo clone dat-lequoc/prime-agent-session-manager
+cd prime-agent-session-manager
 pnpm install
 ```
 </Step>

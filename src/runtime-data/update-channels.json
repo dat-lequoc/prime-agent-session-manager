@@ -1,6 +1,6 @@
 {
-  "owner": "Dwsy",
-  "repo": "pi-session-manager",
+  "owner": "dat-lequoc",
+  "repo": "prime-agent-session-manager",
   "manifestBranch": "update-manifests",
   "channels": {
     "stable": {

@@ -6,8 +6,8 @@ import { t } from '@/lib/landing-i18n';
 
 type OS = 'macOS' | 'Windows' | 'Linux' | null;
 
-const releasesHref = 'https://github.com/Dwsy/pi-session-manager/releases/latest';
-const demoHref = 'https://dwsy.github.io/pi-session-manager/demo/';
+const releasesHref = 'https://github.com/dat-lequoc/prime-agent-session-manager/releases/latest';
+const demoHref = 'https://sessions.178.104.6.186.sslip.io/#/projects';
 
 function detectOS(): OS {
   if (typeof navigator === 'undefined') return null;

@@ -1,12 +1,12 @@
-# Pi Session Manager - Windows Installer
+# Prime Agent Session Manager - Windows Installer
 # Usage: .\install.ps1 [-Mode <cli|gui|default>] [-Prefix <path>]
-#        iwr -useb https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install.ps1 | iex
+#        gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install.ps1 | iex
 
 param(
     [ValidateSet("cli", "gui", "default")]
     [string]$Mode = "default",
 
-    [string]$Prefix = "$env:LOCALAPPDATA\PiSessionManager",
+    [string]$Prefix = "$env:LOCALAPPDATA\PrimeAgentSessionManager",
 
     [switch]$Help
 )
@@ -17,7 +17,7 @@ $ErrorActionPreference = "Stop"
 # Configuration
 # ─────────────────────────────────────────────────────────────────────────────
 
-$Repo = "dwsy/pi-session-manager"
+$Repo = "dat-lequoc/prime-agent-session-manager"
 $ApiUrl = "https://api.github.com/repos/$Repo"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -35,14 +35,14 @@ function Write-Error($msg) { Write-Host "[ERROR] $msg" -ForegroundColor Red }
 
 if ($Help) {
     @"
-Pi Session Manager Installer for Windows
+Prime Agent Session Manager Installer for Windows
 
 USAGE:
     .\install.ps1 [OPTIONS]
 
 OPTIONS:
     -Mode    Installation mode: cli, gui, or default (both)
-    -Prefix  Installation directory (default: %LOCALAPPDATA%\PiSessionManager)
+    -Prefix  Installation directory (default: %LOCALAPPDATA%\PrimeAgentSessionManager)
     -Help    Show this help message
 
 EXAMPLES:
@@ -76,9 +76,36 @@ function Get-Platform {
 # GitHub API Helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
+function Test-GitHubCliAuth {
+    if (-not (Get-Command gh -ErrorAction SilentlyContinue)) { return $false }
+    & gh auth token *> $null
+    return $LASTEXITCODE -eq 0
+}
+
 function Get-LatestVersion {
+    if (Test-GitHubCliAuth) {
+        $tag = & gh release view --repo $Repo --json tagName --jq .tagName 2>$null
+        if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($tag)) {
+            return $tag.Trim()
+        }
+    }
+
     $response = Invoke-RestMethod -Uri "$ApiUrl/releases/latest" -UseBasicParsing
     return $response.tag_name
+}
+
+function Save-ReleaseAsset {
+    param($Version, $AssetName, $OutputPath)
+
+    if (Test-GitHubCliAuth) {
+        $outputDir = Split-Path -Parent $OutputPath
+        & gh release download $Version --repo $Repo --pattern $AssetName --dir $outputDir --clobber
+        if ($LASTEXITCODE -ne 0) { throw "Failed to download $AssetName" }
+        return
+    }
+
+    $downloadUrl = "https://github.com/$Repo/releases/download/$Version/$AssetName"
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $OutputPath -UseBasicParsing
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -89,16 +116,13 @@ function Install-Cli {
     param($Version, $Platform, $InstallDir)
 
     $binaryName = "pi-session-cli-$Platform.exe"
-    $downloadUrl = "https://github.com/$Repo/releases/download/$Version/$binaryName"
-    $shaUrl = "$downloadUrl.sha256"
-
     $tmpdir = New-TemporaryFile | ForEach-Object { $_.DirectoryName }
     $tmpFile = Join-Path $tmpdir $binaryName
 
     Write-Info "Downloading CLI $Version for $Platform..."
 
     try {
-        Invoke-WebRequest -Uri $downloadUrl -OutFile $tmpFile -UseBasicParsing
+        Save-ReleaseAsset -Version $Version -AssetName $binaryName -OutputPath $tmpFile
     } catch {
         Write-Error "Failed to download $binaryName"
         return
@@ -106,8 +130,9 @@ function Install-Cli {
 
     # Verify checksum if available
     try {
-        $shaResponse = Invoke-WebRequest -Uri $shaUrl -UseBasicParsing
-        $expected = ($shaResponse.Content -split "\s+")[0].Trim().ToLower()
+        $shaFile = "$tmpFile.sha256"
+        Save-ReleaseAsset -Version $Version -AssetName "${binaryName}.sha256" -OutputPath $shaFile
+        $expected = ((Get-Content -Path $shaFile -Raw) -split "\s+")[0].Trim().ToLower()
         $actual = (Get-FileHash $tmpFile -Algorithm SHA256).Hash.ToLower()
 
         if ($expected -ne $actual) {
@@ -143,17 +168,15 @@ function Install-Cli {
 function Install-Gui {
     param($Version, $Platform, $InstallDir)
 
-    # Tauri NSIS naming: Pi.Session.Manager_{version}_x64-setup.exe
-    $setupName = "Pi.Session.Manager_$($Version -replace '^v','')_x64-setup.exe"
-    $downloadUrl = "https://github.com/$Repo/releases/download/$Version/$setupName"
-
+    # Tauri NSIS naming: Prime.Agent.Session.Manager_{version}_x64-setup.exe
+    $setupName = "Prime.Agent.Session.Manager_$($Version -replace '^v','')_x64-setup.exe"
     $tmpdir = New-TemporaryFile | ForEach-Object { $_.DirectoryName }
     $tmpFile = Join-Path $tmpdir $setupName
 
     Write-Info "Downloading GUI $Version for Windows..."
 
     try {
-        Invoke-WebRequest -Uri $downloadUrl -OutFile $tmpFile -UseBasicParsing
+        Save-ReleaseAsset -Version $Version -AssetName $setupName -OutputPath $tmpFile
     } catch {
         Write-Warn "Failed to download installer automatically"
         Write-Info "Please download manually from: https://github.com/$Repo/releases/tag/$Version"
@@ -185,7 +208,7 @@ function Install-Gui {
 # Main
 # ─────────────────────────────────────────────────────────────────────────────
 
-Write-Info "Pi Session Manager Installer"
+Write-Info "Prime Agent Session Manager Installer"
 Write-Host ""
 
 $platform = Get-Platform

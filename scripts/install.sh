@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# Pi Session Manager - Universal Installer
+# Prime Agent Session Manager - Universal Installer
 # Supports: macOS (arm64/x64), Linux (x64), Windows (via Git Bash/WSL)
-# Usage: curl -fsSL https://raw.githubusercontent.com/dwsy/pi-session-manager/main/scripts/install.sh | bash
+# Private repository usage: gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install.sh | bash
 #        ./install.sh [--cli|--gui|--default] [--prefix <path>]
 
 set -euo pipefail
@@ -11,7 +11,7 @@ set -euo pipefail
 # Configuration
 # ─────────────────────────────────────────────────────────────────────────────
 
-REPO="dwsy/pi-session-manager"
+REPO="dat-lequoc/prime-agent-session-manager"
 API_URL="https://api.github.com/repos/${REPO}"
 INSTALL_PREFIX="${INSTALL_PREFIX:-/usr/local/bin}"
 DESKTOP_INSTALL_DIR="${DESKTOP_INSTALL_DIR:-$HOME/Applications}"
@@ -85,7 +85,7 @@ parse_args() {
         ;;
       --help|-h)
         cat << 'EOF'
-Pi Session Manager Installer
+Prime Agent Session Manager Installer
 
 USAGE:
     install.sh [OPTIONS]
@@ -124,6 +124,15 @@ EOF
 
 fetch_latest_version() {
   local version
+
+  if command -v gh >/dev/null 2>&1 && gh auth token >/dev/null 2>&1; then
+    version=$(gh release view --repo "$REPO" --json tagName --jq .tagName 2>/dev/null || true)
+    if [[ -n "$version" ]]; then
+      echo "$version"
+      return
+    fi
+  fi
+
   version=$(curl -fsSL "${API_URL}/releases/latest" 2>/dev/null | \
     grep -o '"tag_name": "[^"]*"' | head -1 | cut -d'"' -f4)
 
@@ -133,6 +142,21 @@ fetch_latest_version() {
   fi
 
   echo "$version"
+}
+
+download_release_asset() {
+  local version="$1"
+  local asset_name="$2"
+  local output_path="$3"
+
+  if command -v gh >/dev/null 2>&1 && gh auth token >/dev/null 2>&1; then
+    local output_dir
+    output_dir=$(dirname "$output_path")
+    gh release download "$version" --repo "$REPO" --pattern "$asset_name" --dir "$output_dir" --clobber
+    return
+  fi
+
+  curl -fsSL "https://github.com/${REPO}/releases/download/${version}/${asset_name}" -o "$output_path"
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -145,22 +169,19 @@ download_cli() {
   local install_dir="$3"
 
   local binary_name="pi-session-cli-${platform}"
-  local download_url="https://github.com/${REPO}/releases/download/${version}/${binary_name}"
-  local sha_url="${download_url}.sha256"
-
   local tmpdir
   tmpdir=$(mktemp -d)
   trap "rm -rf '$tmpdir'" EXIT
 
   log_info "Downloading CLI ${CYAN}${version}${NC} for ${CYAN}${platform}${NC}..."
 
-  if ! curl -fsSL "$download_url" -o "${tmpdir}/${binary_name}" 2>/dev/null; then
+  if ! download_release_asset "$version" "$binary_name" "${tmpdir}/${binary_name}" 2>/dev/null; then
     log_error "Failed to download ${binary_name}"
     return 1
   fi
 
   # Verify checksum if available
-  if curl -fsSL "$sha_url" -o "${tmpdir}/${binary_name}.sha256" 2>/dev/null; then
+  if download_release_asset "$version" "${binary_name}.sha256" "${tmpdir}/${binary_name}.sha256" 2>/dev/null; then
     log_info "Verifying checksum..."
     local expected actual
     expected=$(awk '{print $1}' "${tmpdir}/${binary_name}.sha256")
@@ -198,16 +219,14 @@ download_gui_macos() {
   local arch_suffix
   [[ "$platform" == "macos-arm64" ]] && arch_suffix="aarch64" || arch_suffix="x64"
 
-  local dmg_name="Pi.Session.Manager_${version#v}_${arch_suffix}.dmg"
-  local download_url="https://github.com/${REPO}/releases/download/${version}/${dmg_name}"
-
+  local dmg_name="Prime.Agent.Session.Manager_${version#v}_${arch_suffix}.dmg"
   local tmpdir
   tmpdir=$(mktemp -d)
   trap "rm -rf '$tmpdir'" EXIT
 
   log_info "Downloading GUI ${CYAN}${version}${NC} for ${CYAN}${platform}${NC}..."
 
-  if ! curl -fsSL "$download_url" -o "${tmpdir}/${dmg_name}" 2>/dev/null; then
+  if ! download_release_asset "$version" "$dmg_name" "${tmpdir}/${dmg_name}" 2>/dev/null; then
     log_error "Failed to download ${dmg_name}"
     return 1
   fi
@@ -222,7 +241,7 @@ download_gui_macos() {
     return 1
   fi
 
-  local app_name="Pi Session Manager.app"
+  local app_name="Prime Agent Session Manager.app"
   local target_path="${install_dir}/${app_name}"
 
   if [[ -d "$target_path" ]]; then
@@ -242,13 +261,10 @@ download_gui_linux() {
   local version="$1"
   local install_dir="$2"
 
-  # Tauri AppImage naming: Pi.Session.Manager_{version}_amd64.AppImage
-  local appimage_name="Pi.Session.Manager_${version#v}_amd64.AppImage"
-  local download_url="https://github.com/${REPO}/releases/download/${version}/${appimage_name}"
-
+  # Tauri AppImage naming: Prime.Agent.Session.Manager_{version}_amd64.AppImage
+  local appimage_name="Prime.Agent.Session.Manager_${version#v}_amd64.AppImage"
   # Fallback to x86_64 naming if amd64 not found
-  local alt_name="Pi.Session.Manager_${version#v}_x86_64.AppImage"
-  local alt_url="https://github.com/${REPO}/releases/download/${version}/${alt_name}"
+  local alt_name="Prime.Agent.Session.Manager_${version#v}_x86_64.AppImage"
 
   local tmpdir
   tmpdir=$(mktemp -d)
@@ -257,10 +273,10 @@ download_gui_linux() {
   log_info "Downloading GUI ${CYAN}${version}${NC} for Linux..."
 
   # Try amd64 first, then x86_64
-  if ! curl -fsSL "$download_url" -o "${tmpdir}/${appimage_name}" 2>/dev/null; then
+  if ! download_release_asset "$version" "$appimage_name" "${tmpdir}/${appimage_name}" 2>/dev/null; then
     log_info "Trying alternate naming (x86_64)..."
     appimage_name="$alt_name"
-    if ! curl -fsSL "$alt_url" -o "${tmpdir}/${appimage_name}" 2>/dev/null; then
+    if ! download_release_asset "$version" "$appimage_name" "${tmpdir}/${appimage_name}" 2>/dev/null; then
       log_error "Failed to download AppImage"
       log_info "Please download manually from: https://github.com/${REPO}/releases/tag/${version}"
       return 1
@@ -271,12 +287,12 @@ download_gui_linux() {
   local bin_dir="$HOME/.local/bin"
   mkdir -p "$bin_dir"
 
-  local target_path="${bin_dir}/pi-session-manager"
+  local target_path="${bin_dir}/prime-agent-session-manager"
   mv "${tmpdir}/${appimage_name}" "$target_path"
   chmod +x "$target_path"
 
   log_ok "GUI installed to ${CYAN}${target_path}${NC}"
-  log_info "Run with: ${CYAN}pi-session-manager${NC}"
+  log_info "Run with: ${CYAN}prime-agent-session-manager${NC}"
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -286,7 +302,7 @@ download_gui_linux() {
 main() {
   parse_args "$@"
 
-  log_info "Pi Session Manager Installer"
+  log_info "Prime Agent Session Manager Installer"
   echo ""
 
   local platform
@@ -343,7 +359,7 @@ main() {
   if [[ "$MODE" == "gui" ]] || [[ "$MODE" == "default" ]]; then
     if [[ "$platform" == macos-* ]]; then
       echo "GUI: Launch from Applications or run:"
-      echo "  ${CYAN}open '${DESKTOP_INSTALL_DIR}/Pi Session Manager.app'${NC}"
+      echo "  ${CYAN}open '${DESKTOP_INSTALL_DIR}/Prime Agent Session Manager.app'${NC}"
     fi
     echo ""
   fi
