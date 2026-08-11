@@ -10,9 +10,25 @@ import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 会话恢复和终端集成需要安装 [Pi](https://github.com/badlogic/pi-mono)。Session Manager 从 `~/.pi/agent/sessions/` 读取 Pi 的 JSONL 会话文件。
 
+## 快速安装：本地 Web UI
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.sh | bash
+pi-session-cli
+```
+
+Windows PowerShell：
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.ps1 | iex
+pi-session-cli
+```
+
+打开 [http://127.0.0.1:52131/#/projects](http://127.0.0.1:52131/#/projects)。
+
 ## 桌面应用
 
-从 [GitHub Releases](https://github.com/dat-lequoc/prime-agent-session-manager/releases) 下载本分支最新版本。此私有仓库需要已授权的 GitHub 账号。
+从 [GitHub Releases](https://github.com/dat-lequoc/prime-agent-session-manager/releases) 下载最新版本。
 
 ### macOS
 
@@ -63,7 +79,7 @@ chmod +x pi-session-cli
 ./pi-session-cli
 ```
 
-这将在 `http://0.0.0.0:52131` 启动 HTTP 服务器，包含嵌入式前端、WebSocket（`/ws`）和 API（`/api`）。
+这将在 `http://127.0.0.1:52131` 启动 HTTP 服务器，包含嵌入式前端、WebSocket（`/ws`）和 API（`/api`）。
 
 ## Docker
 

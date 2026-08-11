@@ -20,16 +20,16 @@
 ### macOS / Linux
 ```bash
 # CLI 一键安装（引导式，自动语言）
-gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash
+curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.sh | bash
 
 # CLI 非交互安装
-gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash -s -- --yes
+curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.sh | bash -s -- --yes
 
 # CLI 指定语言和安装路径
-gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash -s -- --lang zh --prefix ~/.local/bin
+curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.sh | bash -s -- --lang zh --prefix ~/.local/bin
 
 # 通用安装（默认安装 CLI + GUI）
-gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install.sh | bash
 
 # 仅安装 GUI
 ./install.sh --gui
@@ -38,16 +38,16 @@ gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent
 ### Windows
 ```powershell
 # CLI 一键安装（引导式，自动语言）
-gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.ps1 | iex
 
 # CLI 非交互安装
-$env:PSM_INSTALL_YES="1"; gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
+$env:PSM_INSTALL_YES="1"; iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.ps1 | iex
 
 # CLI 指定语言和安装路径
-$env:PSM_INSTALL_LANG="zh"; $env:PSM_INSTALL_PREFIX="C:\Tools"; gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.ps1 | iex
+$env:PSM_INSTALL_LANG="zh"; $env:PSM_INSTALL_PREFIX="C:\Tools"; iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.ps1 | iex
 
 # 通用安装（默认安装 CLI + GUI）
-gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install.ps1 | iex
 
 # 仅安装 GUI
 .\install.ps1 -Mode gui

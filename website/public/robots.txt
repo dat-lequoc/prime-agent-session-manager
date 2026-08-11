@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://pi-session-manager.dev/sitemap.xml
+Sitemap: https://dat-lequoc.github.io/prime-agent-session-manager/sitemap.xml

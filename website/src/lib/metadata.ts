@@ -1,11 +1,17 @@
 export const siteConfig = {
-  name: 'Prime Agent Session Manager',
+  name: 'Prime Agent Web UI | Prime Agent Session Manager',
   description:
-    'A local-first workspace for Prime Agent and coding-agent session history.',
+    'A local-first Prime Agent Web UI for session traces, recursive RLM agents, persistent IPython state, tools, thinking, and analytics.',
   url: 'https://github.com/dat-lequoc/prime-agent-session-manager',
   repo: 'https://github.com/dat-lequoc/prime-agent-session-manager',
   author: 'Prime Agent Session Manager contributors; based on Pi Session Manager by Dwsy',
   keywords: [
+    'Prime Agent Web UI',
+    'Prime Agent session viewer',
+    'Prime Agent traces',
+    'Prime Agent session manager',
+    'RLM agent viewer',
+    'IPython trace viewer',
     'pi',
     'session manager',
     'coding agent',

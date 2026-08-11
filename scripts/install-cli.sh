@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Prime Agent Session Manager CLI installer
-# Private repository usage:
-#   gh api -H "Accept: application/vnd.github.raw+json" \
-#     repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash
+# One-line install:
+#   curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.sh | bash
 
 set -euo pipefail
 
@@ -46,9 +45,9 @@ msg() {
   --help             显示帮助
 
 示例:
-  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash
-  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash -s -- --yes
-  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash -s -- --prefix /usr/local/bin --lang en
+  curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.sh | bash -s -- --yes
+  curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.sh | bash -s -- --prefix /usr/local/bin --lang en
 EOF
       ;;
     zh:unsupported) echo "不支持的平台" ;;
@@ -92,9 +91,9 @@ Options:
   --help             Show help
 
 Examples:
-  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash
-  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash -s -- --yes
-  gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install-cli.sh | bash -s -- --prefix /usr/local/bin --lang en
+  curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.sh | bash -s -- --yes
+  curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.sh | bash -s -- --prefix /usr/local/bin --lang en
 EOF
       ;;
     en:unsupported) echo "Unsupported platform" ;;

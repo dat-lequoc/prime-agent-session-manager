@@ -13,7 +13,7 @@ const translations = {
       titleLeading: 'Keep the work',
       titleAccent: 'your agents leave behind.',
       description:
-        'Prime Agent Session Manager turns Prime Agent and coding-agent history into a local-first workspace you can browse, search, understand, and continue.',
+        'Prime Agent Web UI turns Prime Agent traces and coding-agent history into a local-first workspace you can browse, search, understand, and continue.',
       primaryAction: 'Try the live demo',
       secondaryAction: 'Download',
       docsAction: 'Read the docs',
@@ -176,7 +176,7 @@ const translations = {
       titleLeading: '让 Agent 留下的工作，',
       titleAccent: '不再消失。',
       description:
-        'Prime Agent Session Manager 将 Prime Agent 与 Coding Agent 历史转化为本地优先的工作台，用于浏览、检索、理解和继续既有工作。',
+        'Prime Agent Web UI 将 Prime Agent trace 与 Coding Agent 历史转化为本地优先的工作台，用于浏览、检索、理解和继续既有工作。',
       primaryAction: '体验在线 Demo',
       secondaryAction: '下载应用',
       docsAction: '阅读文档',

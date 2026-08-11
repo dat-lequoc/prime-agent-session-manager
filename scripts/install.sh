@@ -2,7 +2,7 @@
 #
 # Prime Agent Session Manager - Universal Installer
 # Supports: macOS (arm64/x64), Linux (x64), Windows (via Git Bash/WSL)
-# Private repository usage: gh api -H "Accept: application/vnd.github.raw+json" repos/dat-lequoc/prime-agent-session-manager/contents/scripts/install.sh | bash
+# One-line install: curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install.sh | bash
 #        ./install.sh [--cli|--gui|--default] [--prefix <path>]
 
 set -euo pipefail
