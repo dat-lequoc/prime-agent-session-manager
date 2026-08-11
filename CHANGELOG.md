@@ -14,7 +14,7 @@ All notable changes to Pi Session Manager will be documented in this file.
 
 ### Changed
 
-- Reworked the English and Chinese READMEs around Prime Agent as the default runtime while preserving explicit MIT attribution to Pi Session Manager and Dwsy.
+- Reworked the English and Chinese READMEs around Prime-Agent as the default runtime while preserving explicit MIT attribution to Pi Session Manager and Dwsy.
 - Pointed CLI/desktop installers, updater channels, release metadata, website download links, and repository tooling at `dat-lequoc/prime-agent-session-manager`.
 - Added public release download support without falling back to the upstream project.
 

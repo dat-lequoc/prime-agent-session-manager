@@ -928,7 +928,7 @@ export function getSessionSourceTag(sessionPath: string): string | null {
 
   switch (slug) {
     case 'prime-agent':
-      return 'Prime Agent'
+      return 'Prime-Agent'
     case 'pi':
       return 'Pi'
     case 'omp':

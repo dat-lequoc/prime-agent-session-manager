@@ -157,7 +157,7 @@ describe('updateChecker', () => {
     expect(result.status).toBe('update')
     if (result.status === 'update') {
       expect(result.update.latestVersion).toBe('0.6.5')
-      expect(result.update.releaseName).toBe('Prime Agent Session Manager v0.6.5')
+      expect(result.update.releaseName).toBe('Prime-Agent Session Manager v0.6.5')
       expect(result.update.releaseNotes).toBe('Manifest notes')
     }
   })

@@ -1,4 +1,4 @@
-# Prime Agent Session Manager CLI
+# Prime-Agent Session Manager CLI
 
 A CLI tool to manage Pi sessions, models, tags, and more.
 

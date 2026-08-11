@@ -5,7 +5,7 @@ export const onboarding = {
   finish: '开始使用',
   steps: {
     welcome: {
-      title: '欢迎使用 Prime Agent Session Manager',
+      title: '欢迎使用 Prime-Agent Session Manager',
       description: '一款强大的工具，用于浏览、搜索和管理你的 Pi AI 编程会话。让我们快速了解一下核心功能。',
     },
     browse: {

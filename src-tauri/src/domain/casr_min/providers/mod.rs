@@ -50,7 +50,7 @@ impl ProviderKind {
 
     pub fn display_name(self) -> &'static str {
         match self {
-            Self::PrimeAgent => "Prime Agent",
+            Self::PrimeAgent => "Prime-Agent",
             Self::Pi => "Pi",
             Self::Omp => "OMP",
             Self::ClaudeCode => "Claude Code",

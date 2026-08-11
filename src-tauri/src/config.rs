@@ -198,7 +198,7 @@ impl Config {
             values = crate::domain::session_bridge::default_external_session_provider_slugs();
         }
 
-        // Prime Agent is the primary runtime for this fork. Existing configs
+        // Prime-Agent is the primary runtime for this fork. Existing configs
         // predate the provider list entry, so an unconfigured list defaults it on.
         if self.external_session_provider_slugs.is_empty() && !values.iter().any(|value| value == "prime-agent") {
             values.push("prime-agent".to_string());

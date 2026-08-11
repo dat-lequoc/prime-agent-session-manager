@@ -1,7 +1,7 @@
 {
   "name": "pi-session-manager",
   "version": "0.7.5",
-  "description": "Prime Agent Web UI and local-first coding-agent session viewer",
+  "description": "Prime-Agent Web UI and local-first coding-agent session viewer",
   "type": "module",
   "scripts": {
     "dev": "vite",

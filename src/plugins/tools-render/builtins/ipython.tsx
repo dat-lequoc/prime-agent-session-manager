@@ -81,7 +81,7 @@ function IpythonExecution({ resolvedData, searchQuery, context }: ToolRenderProp
 export const ipythonToolPlugin: ToolRenderPlugin<IpythonToolData> = {
   id: "builtin-prime-ipython",
   name: "Prime IPython",
-  description: "Persistent Prime Agent IPython cells and kernel results",
+  description: "Persistent Prime-Agent IPython cells and kernel results",
   match: toolCall => toolCall.name === "ipython",
   priority: 180,
   component: IpythonExecution,

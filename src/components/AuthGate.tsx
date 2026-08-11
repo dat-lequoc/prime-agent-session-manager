@@ -113,7 +113,7 @@ function AuthGate({ children }: AuthGateProps) {
               <Shield className="w-7 h-7 text-zinc-300" />
             </div>
             <h1 className="text-lg font-semibold text-zinc-100">
-              Prime Agent Session Manager
+              Prime-Agent Session Manager
             </h1>
             <p className="text-sm text-zinc-500 mt-1">
               {t("auth.description", "Enter your API token to continue")}

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Prime Agent Session Manager CLI installer
+# Prime-Agent Session Manager CLI installer
 # One-line install:
 #   curl -fsSL https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install-cli.sh | bash
 
@@ -30,7 +30,7 @@ fi
 msg() {
   local key="$1"
   case "$LANGUAGE:$key" in
-    zh:title) echo "Prime Agent Session Manager CLI 安装器" ;;
+    zh:title) echo "Prime-Agent Session Manager CLI 安装器" ;;
     zh:usage) cat <<'EOF'
 用法:
   install-cli.sh [选项]
@@ -76,7 +76,7 @@ EOF
     zh:verify_fail) echo "安装完成，但验证命令失败" ;;
     zh:done) echo "CLI 安装完成" ;;
     zh:run) echo "运行" ;;
-    en:title) echo "Prime Agent Session Manager CLI installer" ;;
+    en:title) echo "Prime-Agent Session Manager CLI installer" ;;
     en:usage) cat <<'EOF'
 Usage:
   install-cli.sh [options]

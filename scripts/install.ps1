@@ -1,4 +1,4 @@
-# Prime Agent Session Manager - Windows Installer
+# Prime-Agent Session Manager - Windows Installer
 # Usage: .\install.ps1 [-Mode <cli|gui|default>] [-Prefix <path>]
 #        iwr -useb https://raw.githubusercontent.com/dat-lequoc/prime-agent-session-manager/main/scripts/install.ps1 | iex
 
@@ -35,7 +35,7 @@ function Write-Error($msg) { Write-Host "[ERROR] $msg" -ForegroundColor Red }
 
 if ($Help) {
     @"
-Prime Agent Session Manager Installer for Windows
+Prime-Agent Session Manager Installer for Windows
 
 USAGE:
     .\install.ps1 [OPTIONS]
@@ -208,7 +208,7 @@ function Install-Gui {
 # Main
 # ─────────────────────────────────────────────────────────────────────────────
 
-Write-Info "Prime Agent Session Manager Installer"
+Write-Info "Prime-Agent Session Manager Installer"
 Write-Host ""
 
 $platform = Get-Platform

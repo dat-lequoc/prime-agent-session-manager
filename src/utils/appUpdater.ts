@@ -46,7 +46,7 @@ export async function checkAppUpdate(channelInput: UpdateChannel | string): Prom
       currentVersion: update.currentVersion,
       latestVersion: update.version,
       releaseUrl: getReleaseUrl(update.version),
-      releaseName: `Prime Agent Session Manager v${update.version}`,
+      releaseName: `Prime-Agent Session Manager v${update.version}`,
       releaseNotes: (update.body || '').replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200),
       releaseNotesMarkdown: update.body || '',
       publishedAt: update.date || null,

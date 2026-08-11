@@ -151,7 +151,7 @@ export const settings = {
     officialSources: {
       piSessionManagerSuite: {
         name: "PSM 插件套件",
-        description: "Prime Agent Session Manager 的 npm 插件套件。首发 Pi Context Navigator，后续可通过 psm.extensions 扩展子插件。",
+        description: "Prime-Agent Session Manager 的 npm 插件套件。首发 Pi Context Navigator，后续可通过 psm.extensions 扩展子插件。",
       },
     },
     config: "配置",

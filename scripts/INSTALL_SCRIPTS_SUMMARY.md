@@ -1,4 +1,4 @@
-# Prime Agent Session Manager 安装脚本总结
+# Prime-Agent Session Manager 安装脚本总结
 
 ## 文件位置
 - `scripts/install-cli.sh` — macOS/Linux CLI 一键安装脚本，支持引导式安装、`xattr` quarantine 清理、中文/英文

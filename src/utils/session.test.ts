@@ -570,10 +570,10 @@ describe('parseSessionEntriesWithLineCount', () => {
 
 
 describe('getSessionSourceSlug', () => {
-  it('detects Prime Agent sessions before Pi sessions', () => {
+  it('detects Prime-Agent sessions before Pi sessions', () => {
     const path = '/Users/demo/.prime/agent/sessions/019f.jsonl';
     expect(getSessionSourceSlug(path)).toBe('prime-agent');
-    expect(getSessionSourceTag(path)).toBe('Prime Agent');
+    expect(getSessionSourceTag(path)).toBe('Prime-Agent');
   });
 
   it('detects omp sessions under the .omp agent dir', () => {
@@ -617,7 +617,7 @@ describe('getSessionSourceSlug', () => {
   });
 });
 
-describe('Prime Agent usage attribution', () => {
+describe('Prime-Agent usage attribution', () => {
   it('uses the last aggregate for known assistant targets and ignores unknown targets', () => {
     const content = [
       JSON.stringify({ type: 'session', id: 'root', timestamp: '2026-01-01T00:00:00Z', cwd: '/tmp' }),

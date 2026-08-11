@@ -95,7 +95,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: "Prime Agent Session Manager ${{ github.ref_name }}"
+          releaseName: "Prime-Agent Session Manager ${{ github.ref_name }}"
           releaseBody: ""
           releaseDraft: true
           prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
@@ -338,7 +338,7 @@ jobs:
               flags=re.MULTILINE | re.DOTALL,
           )
 
-          body = [f'## Prime Agent Session Manager {version}', '']
+          body = [f'## Prime-Agent Session Manager {version}', '']
           if match:
               lines = match.group(0).strip().splitlines()
               body.extend(lines[1:])
@@ -439,7 +439,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
-          name: "Prime Agent Session Manager ${{ github.ref_name }}"
+          name: "Prime-Agent Session Manager ${{ github.ref_name }}"
           body_path: release-notes.md
           draft: false
           prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}

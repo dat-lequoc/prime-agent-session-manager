@@ -162,7 +162,7 @@ pub fn artifact_path_to_root_session(path: &Path) -> Option<PathBuf> {
 
 pub fn build_prime_session_bundle(root_path: &Path) -> Result<PrimeSessionBundle, String> {
     if !is_prime_root_session_path(root_path) {
-        return Err(format!("Not a Prime Agent root session: {}", root_path.display()));
+        return Err(format!("Not a Prime-Agent root session: {}", root_path.display()));
     }
 
     let header = read_header(root_path)?;
