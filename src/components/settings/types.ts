@@ -92,6 +92,8 @@ export interface AppSettings {
     codeFontWeight: 400 | 500 | 600 | 700;
     /** Enable font ligatures in code blocks */
     codeLigatures: boolean;
+    /** Wrap long lines in session code blocks and tool payloads */
+    codeWrap: boolean;
     messageSpacing: "compact" | "comfortable" | "spacious";
     disableToolSuccessStyle: boolean;
     disableToolCallStyle: boolean;
@@ -200,6 +202,7 @@ export const defaultSettings: AppSettings = {
     codeFontSize: 13,
     codeFontWeight: 400,
     codeLigatures: true,
+    codeWrap: false,
     messageSpacing: "comfortable",
     disableToolSuccessStyle: true,
     disableToolCallStyle: true,

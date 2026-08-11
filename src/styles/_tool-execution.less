@@ -406,6 +406,7 @@ html.tool-call-style-disabled {
   padding: 12px;
   background: var(--bg-inset);
   border-bottom: 1px solid rgba(var(--accent-rgb), 0.15);
+  overflow-x: auto;
 }
 
 .tool-arguments pre {
@@ -863,11 +864,33 @@ html.tool-call-style-disabled {
   margin: 0;
   max-height: 300px;
   overflow: auto;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  white-space: pre;
+  overflow-wrap: normal;
   font-family: var(--font-family-mono, ui-monospace, monospace);
   font-size: calc(var(--font-size-base, 16px) * 0.6875);
   line-height: 1.5;
+}
+
+.session-viewer[data-code-wrap="true"] {
+  .tool-arguments {
+    overflow-x: hidden;
+  }
+
+  .tool-arguments pre,
+  .tool-arguments code,
+  .tool-output-plain,
+  .tool-command,
+  .tool-command-expanded,
+  .tool-arguments-content {
+    min-width: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .tool-output-plain {
+    overflow-x: hidden;
+  }
 }
 
 

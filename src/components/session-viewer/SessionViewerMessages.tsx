@@ -32,6 +32,7 @@ import NewMessagesButton from "./NewMessagesButton";
 import ScrollToBottomButton from "./ScrollToBottomButton";
 import ScrollToTopButton from "./ScrollToTopButton";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
+import { useSettings } from "@/hooks/useSettings";
 import {
   SessionMessagesEmptyState,
   SessionMessagesErrorState,
@@ -136,6 +137,7 @@ const SessionViewerMessages = forwardRef<
 }: SessionViewerMessagesProps, ref) {
   const { t } = useTranslation();
   const { ensureToolExpandedForSearch } = useSessionView();
+  const { appearance } = useSettings();
   const showLoadingSpinner = useDelayedLoading(loading);
 
   const {
@@ -377,6 +379,7 @@ const SessionViewerMessages = forwardRef<
       />
       <div
         className="h-full overflow-y-auto session-viewer"
+        data-code-wrap={appearance.codeWrap ? "true" : "false"}
         ref={setContainerRef}
         onMouseMove={handleContainerPointerMove}
         onMouseLeave={handleContainerPointerLeave}
