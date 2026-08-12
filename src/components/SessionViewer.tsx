@@ -28,6 +28,8 @@ import type { SessionViewerMessagesRef } from "./session-viewer/SessionViewerMes
 import { getPlatformDefaults } from "./settings/types";
 import type { PsmSessionTreeViewRuntimeRegistration } from "@/plugins/runtime-host/types";
 import type { SessionEntry, SessionInfo } from "@/types";
+import type { SessionFamily } from "@/types";
+import SessionFamilyPanel from "./session-viewer/SessionFamilyPanel";
 import type { TerminalType } from "./settings/types";
 import type {
   SessionViewerToolbarSlots,
@@ -69,6 +71,9 @@ interface SessionViewerProps {
   onViewerControllerChange?: (
     controller: PsmSessionViewerController | null,
   ) => void;
+  sessionFamily?: SessionFamily | null;
+  selectedFamilyThreadId?: string | null;
+  onFamilyThreadSelect?: (threadId: string) => void;
 }
 
 interface SessionViewerRevealTarget {
@@ -124,6 +129,9 @@ function SessionViewerContent({
   pluginTreeViews,
   onActiveEntryIdChange,
   onViewerControllerChange,
+  sessionFamily,
+  selectedFamilyThreadId,
+  onFamilyThreadSelect,
 }: SessionViewerProps) {
   const { t } = useTranslation();
   const {
@@ -450,6 +458,9 @@ function SessionViewerContent({
         <Suspense fallback={<div className="border-b border-border px-3 py-2 text-[10px] text-muted-foreground">Loading Prime runtime…</div>}>
           <PrimeSessionOverview rootPath={session.path} />
         </Suspense>
+      ) : undefined}
+      familyOverview={!previewMode && sessionFamily && selectedFamilyThreadId && onFamilyThreadSelect ? (
+        <SessionFamilyPanel family={sessionFamily} selectedThreadId={selectedFamilyThreadId} onSelectThread={onFamilyThreadSelect} />
       ) : undefined}
       layoutSlots={layoutSlots}
       mainViewSlot={mainViewSlot}

@@ -1,8 +1,19 @@
 import { getRuntimeMode } from "./runtimeMode";
 import { isStandaloneDatasetRuntime } from "@/browser-dataset";
 
-export function shouldSkipOnboardingForRuntime(): boolean {
-  return getRuntimeMode() === "demo" || isStandaloneDatasetRuntime();
+interface RuntimeBuildEnv {
+  readonly VITE_PUBLIC_READ_ONLY?: string;
+}
+
+export function shouldSkipOnboardingForRuntime(
+  env: RuntimeBuildEnv = import.meta.env as RuntimeBuildEnv,
+): boolean {
+  return (
+    env.VITE_PUBLIC_READ_ONLY === "true" ||
+    env.VITE_PUBLIC_READ_ONLY === "1" ||
+    getRuntimeMode() === "demo" ||
+    isStandaloneDatasetRuntime()
+  );
 }
 
 export function shouldBypassAuthGate(): boolean {

@@ -31,6 +31,8 @@ pub fn run() {
             convert_session_format,
             get_session_by_path,
             get_session_by_id,
+            list_session_families,
+            get_session_family,
             search_sessions,
             search_sessions_fts,
             get_plugin_record,
@@ -258,7 +260,7 @@ mod tests {
         let handler_set = handlers.iter().copied().collect::<BTreeSet<_>>();
         let dispatch_set = crate::dispatch::capability_command_catalog().collect::<BTreeSet<_>>();
 
-        assert_eq!(handlers.len(), 177);
+        assert_eq!(handlers.len(), 179);
         assert_eq!(handler_set.len(), handlers.len());
 
         let dispatch_only = dispatch_set.difference(&handler_set).copied().collect::<Vec<_>>();

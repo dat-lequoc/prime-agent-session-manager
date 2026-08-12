@@ -122,6 +122,10 @@ function renderBody(overrides: Partial<Parameters<typeof SessionViewerBody>[0]> 
 }
 
 describe('SessionViewerBody', () => {
+  it('keeps family navigation outside the shrinking transcript stage', () => {
+    renderBody({ familyOverview: <div>Run threads</div> })
+    expect(screen.getByText('Run threads').parentElement?.className).toContain('shrink-0')
+  })
   it('renders the built-in desktop session tree as an embedded panel in the stable content stage', () => {
     renderBody({
       layoutSlots: {

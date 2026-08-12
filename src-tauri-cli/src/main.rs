@@ -114,7 +114,15 @@ fn load_config() -> ServerConfig {
         })
     });
 
-    ServerConfig { http_enabled: value["http_enabled"].as_bool().unwrap_or(true), http_port: value["http_port"].as_u64().unwrap_or(52131) as u16, bind_addr: value["bind_addr"].as_str().unwrap_or("0.0.0.0").to_string(), auth_enabled: value["auth_enabled"].as_bool().unwrap_or(true) }
+    let auth_enabled = std::env::var("PSM_AUTH_ENABLED")
+        .ok()
+        .and_then(|raw| match raw.trim().to_ascii_lowercase().as_str() {
+            "1" | "true" | "yes" | "on" => Some(true),
+            "0" | "false" | "no" | "off" => Some(false),
+            _ => None,
+        })
+        .unwrap_or_else(|| value["auth_enabled"].as_bool().unwrap_or(true));
+    ServerConfig { http_enabled: value["http_enabled"].as_bool().unwrap_or(true), http_port: value["http_port"].as_u64().unwrap_or(52131) as u16, bind_addr: value["bind_addr"].as_str().unwrap_or("0.0.0.0").to_string(), auth_enabled }
 }
 
 fn query_param(uri: &Uri, key: &str) -> Option<String> {
@@ -390,6 +398,8 @@ fn is_read_only_command(command: &str) -> bool {
             | "list_supported_session_providers"
             | "get_session_by_path"
             | "get_session_by_id"
+            | "list_session_families"
+            | "get_session_family"
             | "get_session_stats"
             | "get_session_stats_light"
             | "get_all_favorites"
@@ -425,6 +435,7 @@ mod read_only_tests {
         assert!(is_read_only_command("scan_sessions"));
         assert!(is_read_only_command("get_session_entries"));
         assert!(is_read_only_command("get_prime_session_bundle"));
+        assert!(is_read_only_command("get_session_family"));
     }
 
     #[test]

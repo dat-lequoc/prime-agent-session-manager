@@ -20,6 +20,7 @@ mod psm_plugins;
 mod resource_trust;
 pub mod search;
 mod session;
+mod session_family;
 // session_file is pub(super) to restrict direct access from outside commands/.
 // Its public items are re-exported via `pub use session_file::*;` below for
 // external consumers. Direct path `commands::session_file::X` is intentionally
@@ -58,6 +59,7 @@ pub use psm_plugins::*;
 pub use resource_trust::*;
 pub use search::*;
 pub use session::*;
+pub use session_family::*;
 pub use session_file::*;
 pub use session_list::*;
 pub use session_open::*;

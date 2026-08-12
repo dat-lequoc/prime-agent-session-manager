@@ -28,6 +28,10 @@ fn is_session_file(path: &std::path::Path) -> bool {
     is_jsonl || is_gemini || is_opencode
 }
 
+fn is_family_manifest(path: &std::path::Path) -> bool {
+    path.file_name().is_some_and(|name| name == "family.json") && path.components().any(|component| component.as_os_str() == ".arena") && path.components().any(|component| component.as_os_str() == "families")
+}
+
 pub struct CliFileWatcher {
     _debouncer: Arc<Mutex<Debouncer<RecommendedWatcher, FileIdMap>>>,
 }
@@ -35,7 +39,14 @@ pub struct CliFileWatcher {
 impl CliFileWatcher {
     pub fn start(event_tx: broadcast::Sender<WsEvent>) -> Result<Self, String> {
         let config = pi_session_manager::config::Config::load().unwrap_or_default();
-        let all_dirs = pi_session_manager::scanner::get_all_session_dirs(&config);
+        let mut all_dirs = pi_session_manager::scanner::get_all_session_dirs(&config);
+        if let Ok(families) = pi_session_manager::domain::session_family::families_dir() {
+            if let Err(error) = std::fs::create_dir_all(&families) {
+                warn!("Failed to prepare session family watch directory {}: {}", families.display(), error);
+            } else if !all_dirs.contains(&families) {
+                all_dirs.push(families);
+            }
+        }
 
         if all_dirs.is_empty() {
             return Err("No directories configured for file watcher".to_string());
@@ -68,6 +79,7 @@ fn process_events(rx: std::sync::mpsc::Receiver<DebounceEventResult>, event_tx: 
     let mut last_notification = Instant::now();
     let min_interval = Duration::from_secs(5);
     let mut pending_paths: HashSet<PathBuf> = HashSet::new();
+    let mut families_changed = false;
 
     let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().expect("Failed to create tokio runtime for CLI file watcher");
 
@@ -77,6 +89,10 @@ fn process_events(rx: std::sync::mpsc::Receiver<DebounceEventResult>, event_tx: 
                 Ok(events) => {
                     for event in &events {
                         for path in &event.paths {
+                            if is_family_manifest(path) {
+                                families_changed = true;
+                                continue;
+                            }
                             if !is_session_file(path) {
                                 continue;
                             }
@@ -95,7 +111,17 @@ fn process_events(rx: std::sync::mpsc::Receiver<DebounceEventResult>, event_tx: 
             }
         }
 
-        if pending_paths.is_empty() || last_notification.elapsed() < min_interval {
+        if (pending_paths.is_empty() && !families_changed) || last_notification.elapsed() < min_interval {
+            continue;
+        }
+
+        if families_changed {
+            let _ = event_tx.send(WsEvent { event_type: "event".to_string(), event: "session-families-changed".to_string(), payload: serde_json::json!({ "changed": true }) });
+            families_changed = false;
+        }
+
+        if pending_paths.is_empty() {
+            last_notification = Instant::now();
             continue;
         }
 
@@ -106,14 +132,14 @@ fn process_events(rx: std::sync::mpsc::Receiver<DebounceEventResult>, event_tx: 
 
         match rt.block_on(pi_session_manager::scanner::rescan_changed_files(changed)) {
             Ok(diff) => {
-                if diff.updated.is_empty() && diff.removed.is_empty() {
-                    continue;
+                if !diff.updated.is_empty() || !diff.removed.is_empty() {
+                    let payload = serde_json::to_value(&diff).unwrap_or(Value::Null);
+                    let _ = event_tx.send(WsEvent { event_type: "event".to_string(), event: "sessions-changed".to_string(), payload });
                 }
-                let payload = serde_json::to_value(&diff).unwrap_or(Value::Null);
-                let _ = event_tx.send(WsEvent { event_type: "event".to_string(), event: "sessions-changed".to_string(), payload });
-                last_notification = Instant::now();
             }
             Err(e) => warn!("CLI watcher rescan failed: {}", e),
         }
+
+        last_notification = Instant::now();
     }
 }

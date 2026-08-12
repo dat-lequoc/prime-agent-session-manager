@@ -20,6 +20,13 @@ fn get_all_watch_dirs(config: &crate::config::Config) -> Vec<PathBuf> {
             dirs.push(artifacts);
         }
     }
+    if let Ok(families) = crate::domain::session_family::families_dir() {
+        if let Err(error) = std::fs::create_dir_all(&families) {
+            warn!("Failed to prepare session family watch directory {}: {}", families.display(), error);
+        } else if !dirs.iter().any(|path| path == &families) {
+            dirs.push(families);
+        }
+    }
     dirs
 }
 
@@ -167,6 +174,7 @@ fn process_events_with_merge(rx: Receiver<DebounceEventResult>, app_handle: AppH
     let min_interval = Duration::from_secs(5);
     let mut pending_paths: HashSet<PathBuf> = HashSet::new();
     let mut prime_changed_roots: HashSet<PathBuf> = HashSet::new();
+    let mut families_changed = false;
 
     // Create a tokio runtime for async calls
     let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().expect("Failed to create tokio runtime for file watcher");
@@ -179,6 +187,10 @@ fn process_events_with_merge(rx: Receiver<DebounceEventResult>, app_handle: AppH
                 Ok(events) => {
                     for event in &events {
                         for path in &event.paths {
+                            if path.file_name().is_some_and(|name| name == "family.json") && path.components().any(|component| component.as_os_str() == ".arena") && path.components().any(|component| component.as_os_str() == "families") {
+                                families_changed = true;
+                                continue;
+                            }
                             if crate::domain::prime_session::is_prime_root_session_path(path) {
                                 prime_changed_roots.insert(path.clone());
                             }
@@ -223,46 +235,53 @@ fn process_events_with_merge(rx: Receiver<DebounceEventResult>, app_handle: AppH
             }
         }
 
-        if !pending_paths.is_empty() && last_notification.elapsed() >= min_interval {
-            let changed: Vec<String> = pending_paths.drain().map(|p| p.to_string_lossy().to_string()).collect();
-            let prime_changed = prime_changed_roots.drain().map(|path| path.to_string_lossy().to_string()).collect::<Vec<_>>();
+        if (families_changed || !pending_paths.is_empty()) && last_notification.elapsed() >= min_interval {
+            if families_changed {
+                if let Err(error) = app_handle.emit("session-families-changed", serde_json::json!({ "changed": true })) {
+                    error!("Failed to emit session family event: {}", error);
+                }
+                families_changed = false;
+            }
 
-            let changed_count = changed.len();
-            let rescan_started_at = Instant::now();
-            debug!("Incremental rescan: {} changed files", changed_count);
+            if !pending_paths.is_empty() {
+                let changed: Vec<String> = pending_paths.drain().map(|p| p.to_string_lossy().to_string()).collect();
+                let prime_changed = prime_changed_roots.drain().map(|path| path.to_string_lossy().to_string()).collect::<Vec<_>>();
 
-            // Mark watcher as active so scanner scheduler skips redundant full scans
-            crate::core::scanner::mark_watcher_active();
+                let changed_count = changed.len();
+                let rescan_started_at = Instant::now();
+                debug!("Incremental rescan: {} changed files", changed_count);
 
-            if !prime_changed.is_empty() {
-                if let Err(error) = app_handle.emit("prime-session-changed", serde_json::json!({ "rootPaths": prime_changed })) {
-                    error!("Failed to emit Prime session artifact event: {}", error);
+                // Mark watcher as active so scanner scheduler skips redundant full scans
+                crate::core::scanner::mark_watcher_active();
+
+                if !prime_changed.is_empty() {
+                    if let Err(error) = app_handle.emit("prime-session-changed", serde_json::json!({ "rootPaths": prime_changed })) {
+                        error!("Failed to emit Prime session artifact event: {}", error);
+                    }
+                }
+
+                // Update backend cache, get diff
+                match rt.block_on(crate::core::scanner::rescan_changed_files(changed)) {
+                    Ok(diff) => {
+                        let rescan_elapsed_ms = rescan_started_at.elapsed().as_millis();
+                        if diff.updated.is_empty() && diff.removed.is_empty() {
+                            info!("Incremental rescan completed in {}ms with no effective session diff (changed_files={})", rescan_elapsed_ms, changed_count);
+                        } else {
+                            info!("Incremental rescan completed in {}ms (changed_files={} updated={} removed={})", rescan_elapsed_ms, changed_count, diff.updated.len(), diff.removed.len());
+                            // Emit diff so frontend can merge locally without calling scan_sessions
+                            let payload = serde_json::to_value(&diff).unwrap_or(Value::Null);
+                            if let Err(e) = app_handle.emit("sessions-changed", payload) {
+                                error!("Failed to emit event: {}", e);
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        error!("Failed to rescan changed files after {}ms: {}", rescan_started_at.elapsed().as_millis(), e);
+                    }
                 }
             }
 
-            // Update backend cache, get diff
-            match rt.block_on(crate::core::scanner::rescan_changed_files(changed)) {
-                Ok(diff) => {
-                    let rescan_elapsed_ms = rescan_started_at.elapsed().as_millis();
-                    if diff.updated.is_empty() && diff.removed.is_empty() {
-                        info!("Incremental rescan completed in {}ms with no effective session diff (changed_files={})", rescan_elapsed_ms, changed_count);
-                        // Nothing actually changed, skip notification
-                        last_notification = Instant::now();
-                        continue;
-                    }
-                    info!("Incremental rescan completed in {}ms (changed_files={} updated={} removed={})", rescan_elapsed_ms, changed_count, diff.updated.len(), diff.removed.len());
-                    // Emit diff so frontend can merge locally without calling scan_sessions
-                    let payload = serde_json::to_value(&diff).unwrap_or(Value::Null);
-                    if let Err(e) = app_handle.emit("sessions-changed", payload) {
-                        error!("Failed to emit event: {}", e);
-                    } else {
-                        last_notification = Instant::now();
-                    }
-                }
-                Err(e) => {
-                    error!("Failed to rescan changed files after {}ms: {}", rescan_started_at.elapsed().as_millis(), e);
-                }
-            }
+            last_notification = Instant::now();
         }
     }
 }

@@ -58,7 +58,7 @@ fn extract_plugin_permission_context(payload: &Value) -> PluginPermissionContext
 
 fn required_permissions_for_command(command: &str) -> &'static [PluginPermission] {
     match command {
-        "scan_sessions" | "scan_sessions_paginated" | "get_session_entries" | "read_session_file_chunk" | "get_session_labels" | "open_session_in_browser" | "open_session_in_terminal" => &[PluginPermission::SessionsRead],
+        "scan_sessions" | "scan_sessions_paginated" | "get_session_entries" | "read_session_file_chunk" | "get_session_labels" | "list_session_families" | "get_session_family" | "open_session_in_browser" | "open_session_in_terminal" => &[PluginPermission::SessionsRead],
         "get_plugin_record" | "list_plugin_records_for_scope" | "search_plugin_records" => &[PluginPermission::RecordsRead],
         "upsert_plugin_record" => &[PluginPermission::RecordsWrite],
         "refresh_session_intelligence_record" => &[PluginPermission::RecordsWrite, PluginPermission::ModelInvoke],

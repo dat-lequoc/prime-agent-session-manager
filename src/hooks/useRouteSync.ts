@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useMemo, useRef } from 'react';
+import { useEffect, useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
 import {
@@ -7,10 +7,16 @@ import {
   buildProjectUrl,
   buildProjectsUrl,
   buildSessionUrl,
+  buildSessionFamilyUrl,
   parseRoute,
 } from '../router/config';
 import { getRuntimeSessionById } from '../runtime-data/sessionSource';
-import type { SessionInfo } from '../types';
+import {
+  getRuntimeSessionFamily,
+  listenForSessionFamilyChanges,
+  listRuntimeSessionFamilies,
+} from '../runtime-data/sessionFamilies';
+import type { SessionFamily, SessionInfo } from '../types';
 import type { AppSidebarViewMode } from './app/useSidebarSessions';
 import {
   beginRouteTransition,
@@ -46,6 +52,31 @@ function fallbackAppRoute(viewId: string) {
   return `/app/${encodeURIComponent(viewId)}`;
 }
 
+function findSessionFamilyThread(
+  families: SessionFamily[],
+  session: SessionInfo,
+) {
+  const candidates = families.flatMap((family) =>
+    family.threads.map((thread) => ({ family, thread })),
+  );
+  const pathMatch = candidates.find(
+    ({ thread }) =>
+      thread.session.path === session.path || thread.session_path === session.path,
+  );
+  if (pathMatch) return pathMatch;
+
+  const idMatches = candidates.filter(
+    ({ thread }) =>
+      thread.session.id === session.id || thread.native_session_id === session.id,
+  );
+  const createdMatch = idMatches.find(
+    ({ thread }) => thread.session.created === session.created,
+  );
+  if (createdMatch) return createdMatch;
+
+  return idMatches.length === 1 ? idMatches[0] : null;
+}
+
 export function useRouteSync({
   setSelectedSession,
   selectedSession,
@@ -66,11 +97,15 @@ export function useRouteSync({
     () => parseRoute(location.pathname),
     [location.pathname],
   );
+  const [selectedFamily, setSelectedFamily] = useState<SessionFamily | null>(null);
+  const [selectedFamilyThreadId, setSelectedFamilyThreadId] = useState<string | null>(null);
   // Only block the main pane when the URL names a session we have not selected yet.
   // If the user already picked a session in the sidebar (state ahead of URL), keep showing the viewer.
   const pendingSessionRoute =
-    (parsedRoute.route === 'session' || parsedRoute.route === 'native-session') &&
-    selectedSession == null;
+    ((parsedRoute.route === 'session' || parsedRoute.route === 'native-session') && selectedSession == null) ||
+    (parsedRoute.route === 'session-family' &&
+      (selectedFamily?.family_id !== parsedRoute.familyId ||
+        selectedFamilyThreadId !== parsedRoute.threadId));
   const matchingAppRoute = useMemo(() => {
     if (parsedRoute.route !== 'app') return null;
     const routePath = normalizeRoutePath(parsedRoute.path);
@@ -100,6 +135,80 @@ export function useRouteSync({
     },
     [navigate],
   );
+
+  useEffect(() => {
+    const isFamilyRoute = parsedRoute.route === 'session-family';
+    const isSessionRoute =
+      parsedRoute.route === 'session' || parsedRoute.route === 'native-session';
+    if (!isFamilyRoute && (!isSessionRoute || !selectedSession)) {
+      setSelectedFamily(null);
+      setSelectedFamilyThreadId(null);
+      return;
+    }
+
+    let cancelled = false;
+    let unlisten: (() => void) | undefined;
+    const resolveFamily = async () => {
+      try {
+        if (parsedRoute.route === 'session-family') {
+          const family = await getRuntimeSessionFamily(parsedRoute.familyId);
+          if (cancelled) return;
+          if (!family) {
+            setSelectedFamily(null);
+            setSelectedFamilyThreadId(null);
+            setSelectedSession(null);
+            navigateToPath('/', { replace: true });
+            return;
+          }
+          const requested = family.threads.find((thread) => thread.thread_id === parsedRoute.threadId);
+          const root = family.threads.find((thread) => thread.thread_id === family.root_thread_id);
+          const thread = requested ?? root;
+          if (!thread) return;
+          setSelectedFamily(family);
+          setSelectedFamilyThreadId(thread.thread_id);
+          setSelectedSession(thread.session);
+          if (!requested) {
+            navigateToPath(buildSessionFamilyUrl(family.family_id, thread.thread_id), { replace: true });
+          }
+          return;
+        }
+
+        if (!selectedSession) return;
+        const families = await listRuntimeSessionFamilies();
+        if (cancelled) return;
+        const match = findSessionFamilyThread(families, selectedSession);
+        if (!match) {
+          setSelectedFamily(null);
+          setSelectedFamilyThreadId(null);
+          return;
+        }
+        setSelectedFamily(match.family);
+        setSelectedFamilyThreadId(match.thread.thread_id);
+        navigateToPath(
+          buildSessionFamilyUrl(match.family.family_id, match.thread.thread_id),
+          { replace: true },
+        );
+      } catch (error) {
+        console.warn('Unable to resolve session family route yet:', error);
+      }
+    };
+
+    void resolveFamily();
+    const timer = isFamilyRoute
+      ? window.setInterval(resolveFamily, 2000)
+      : undefined;
+    void listenForSessionFamilyChanges(resolveFamily).then((cleanup) => {
+      if (cancelled) cleanup();
+      else unlisten = cleanup;
+    });
+    return () => {
+      cancelled = true;
+      if (timer !== undefined) {
+        window.clearInterval(timer);
+      }
+      unlisten?.();
+    };
+  }, [navigateToPath, parsedRoute, selectedSession, setSelectedSession]);
 
   // ─── URL → State (single source of truth) ─────────────
   // This effect syncs ALL app state from the URL.
@@ -162,6 +271,14 @@ export function useRouteSync({
         } else if (!sessionsLoading) {
           navigateToPath('/', { replace: true });
         }
+        break;
+      }
+
+      case 'session-family': {
+        setActiveAppViewId(null);
+        setSelectedProject(null);
+        setShowSettings(false);
+        setShowTerminal(false);
         break;
       }
 
@@ -254,6 +371,10 @@ export function useRouteSync({
     (nativeSessionId: string) => navigateToPath(buildNativeSessionUrl(nativeSessionId)),
     [navigateToPath],
   );
+  const navigateToSessionFamilyThread = useCallback(
+    (familyId: string, threadId: string) => navigateToPath(buildSessionFamilyUrl(familyId, threadId)),
+    [navigateToPath],
+  );
   const navigateToSessions = useCallback(() => navigateToPath('/'), [navigateToPath]);
   const navigateToProjects = useCallback(
     () => navigateToPath(buildProjectsUrl()),
@@ -271,6 +392,7 @@ export function useRouteSync({
   return {
     navigateToSession,
     navigateToNativeSession,
+    navigateToSessionFamilyThread,
     navigateToSessions,
     navigateToProjects,
     navigateToProject,
@@ -278,5 +400,7 @@ export function useRouteSync({
     navigateToPath,
     pendingSessionRoute,
     pendingAppRoute,
+    selectedFamily,
+    selectedFamilyThreadId,
   };
 }

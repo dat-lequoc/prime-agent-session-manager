@@ -14,6 +14,7 @@ pub mod pi_session;
 pub mod plugin_fs;
 pub mod prime_session;
 pub mod session_bridge;
+pub mod session_family;
 pub mod session_list;
 pub mod session_search;
 pub mod session_summary;

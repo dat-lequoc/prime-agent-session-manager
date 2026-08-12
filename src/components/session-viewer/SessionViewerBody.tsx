@@ -102,6 +102,7 @@ export interface SessionViewerBodyProps {
   entries: SessionEntry[];
   toolbarProps: SessionViewerToolbarProps;
   primeOverview?: ReactNode;
+  familyOverview?: ReactNode;
   layoutSlots?: SessionViewerLayoutSlots;
   mainViewSlot?: ReactNode;
   forkedFromLabel: string;
@@ -124,6 +125,7 @@ export default function SessionViewerBody({
   entries,
   toolbarProps,
   primeOverview,
+  familyOverview,
   layoutSlots,
   mainViewSlot,
   forkedFromLabel,
@@ -177,7 +179,8 @@ export default function SessionViewerBody({
 
         {layoutSlots?.top}
         <SessionViewerToolbar {...toolbarProps} />
-        {primeOverview}
+        {familyOverview && <div className="shrink-0">{familyOverview}</div>}
+        {primeOverview && <div className="shrink-0">{primeOverview}</div>}
 
         {session.parent_session_path && (
           <div className="px-3 py-1.5 text-xs text-muted-foreground border-b border-border bg-secondary/30 flex items-center gap-1.5">
