@@ -30,6 +30,39 @@ export interface SessionsDiff {
   removed: string[];
 }
 
+export interface SessionFamilyThread {
+  thread_id: string;
+  native_session_id?: string;
+  parent_thread_id?: string;
+  relationship: string;
+  label: string;
+  status: string;
+  model?: string;
+  started_at?: string;
+  finished_at?: string;
+  usage: Record<string, unknown>;
+  activity: Record<string, unknown>;
+  session_path: string;
+  session: SessionInfo;
+}
+
+export interface SessionFamily {
+  schema_version: "arena-session-family-v1";
+  family_id: string;
+  run_id: string;
+  task?: string;
+  task_display_name?: string;
+  harness?: string;
+  model?: string;
+  status?: string;
+  started_at?: string;
+  finished_at?: string;
+  root_thread_id: string;
+  generation: number;
+  updated_at: string;
+  threads: SessionFamilyThread[];
+}
+
 export interface FavoriteItem {
   type: "session" | "project";
   id: string;

@@ -8,6 +8,7 @@
     "dev:demo": "vite --mode demo",
     "dev:dataset": "vite --mode dataset",
     "build": "tsc && vite build",
+    "build:public-read-only": "VITE_PUBLIC_READ_ONLY=true npm run build",
     "build:demo": "tsc && vite build --mode demo",
     "build:dataset": "tsc && vite build --mode dataset",
     "typecheck:extensions": "tsc -p tsconfig.extensions.json --noEmit",

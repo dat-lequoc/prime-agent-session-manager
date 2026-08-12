@@ -1,11 +1,25 @@
 // @vitest-environment jsdom
 import { renderHook, waitFor, act } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { MemoryRouter, useLocation } from "react-router-dom";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 
-import { useRouteSync } from "../useRouteSync";
-import type { SessionInfo } from "@/types";
+import type { SessionFamily, SessionInfo } from "@/types";
+
+type UseRouteSync = typeof import("../useRouteSync").useRouteSync;
+let useRouteSync: UseRouteSync;
+
+const sessionFamilyMocks = vi.hoisted(() => ({
+  get: vi.fn(),
+  list: vi.fn(),
+  listen: vi.fn(),
+}));
+
+vi.mock("@/runtime-data/sessionFamilies", () => ({
+  getRuntimeSessionFamily: (...args: unknown[]) => sessionFamilyMocks.get(...args),
+  listRuntimeSessionFamilies: (...args: unknown[]) => sessionFamilyMocks.list(...args),
+  listenForSessionFamilyChanges: (...args: unknown[]) => sessionFamilyMocks.listen(...args),
+}));
 
 const makeSession = (id: string): SessionInfo => ({
   id,
@@ -23,8 +37,16 @@ type HookProps = Parameters<typeof useRouteSync>[0];
 
 function renderUseRouteSync(path: string, initialProps: Partial<HookProps> = {}) {
   const session = makeSession("target-session");
+  let currentPath = path;
+  const LocationObserver = () => {
+    currentPath = useLocation().pathname;
+    return null;
+  };
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <MemoryRouter initialEntries={[path]}>{children}</MemoryRouter>
+    <MemoryRouter initialEntries={[path]}>
+      <LocationObserver />
+      {children}
+    </MemoryRouter>
   );
   const spies = {
     setSelectedSession: vi.fn(),
@@ -51,10 +73,36 @@ function renderUseRouteSync(path: string, initialProps: Partial<HookProps> = {})
     wrapper,
     initialProps: baseProps,
   });
-  return { ...hook, spies, session, baseProps };
+  return { ...hook, spies, session, baseProps, getCurrentPath: () => currentPath };
 }
 
 describe("useRouteSync", () => {
+  beforeEach(async () => {
+    if (!useRouteSync) {
+      const storage = new Map<string, string>();
+      Object.defineProperty(globalThis, "localStorage", {
+        configurable: true,
+        value: {
+          getItem: (key: string) => storage.get(key) ?? null,
+          setItem: (key: string, value: string) => storage.set(key, value),
+          removeItem: (key: string) => storage.delete(key),
+          clear: () => storage.clear(),
+          key: (index: number) => [...storage.keys()][index] ?? null,
+          get length() {
+            return storage.size;
+          },
+        },
+      });
+      ({ useRouteSync } = await import("../useRouteSync"));
+    }
+    sessionFamilyMocks.get.mockReset();
+    sessionFamilyMocks.list.mockReset();
+    sessionFamilyMocks.listen.mockReset();
+    sessionFamilyMocks.get.mockResolvedValue(null);
+    sessionFamilyMocks.list.mockResolvedValue([]);
+    sessionFamilyMocks.listen.mockResolvedValue(() => {});
+  });
+
   it("reports pending while a session URL has not been selected yet", () => {
     const { result } = renderUseRouteSync("/sessions/target-session", {
       selectedSession: null,
@@ -93,6 +141,75 @@ describe("useRouteSync", () => {
 
     await waitFor(() => {
       expect(spies.setSelectedSession).toHaveBeenCalledWith(nativeSession);
+    });
+  });
+
+  it("redirects a reused Pi-AGI root session id to its path-matched family", async () => {
+    const currentRoot = {
+      ...makeSession("arena-pi-agi-root"),
+      path: "/sessions/current/pi-agi-root.jsonl",
+      created: "2026-08-12T10:18:54.016Z",
+    };
+    const oldRoot = {
+      ...makeSession("arena-pi-agi-root"),
+      path: "/sessions/old/pi-agi-root.jsonl",
+      created: "2026-08-11T16:26:10.533Z",
+    };
+    const makeFamily = (
+      familyId: string,
+      root: SessionInfo,
+    ): SessionFamily => ({
+      schema_version: "arena-session-family-v1",
+      family_id: familyId,
+      run_id: familyId,
+      root_thread_id: "pi-agi:root",
+      generation: 1,
+      updated_at: root.modified,
+      threads: [{
+        thread_id: "pi-agi:root",
+        native_session_id: "arena-pi-agi-root",
+        relationship: "root",
+        label: "Pi-AGI orchestrator",
+        status: "running",
+        usage: {},
+        activity: {},
+        session_path: root.path,
+        session: root,
+      }],
+    });
+    const currentFamily = makeFamily("current-family", currentRoot);
+    sessionFamilyMocks.list.mockResolvedValue([
+      makeFamily("old-family", oldRoot),
+      currentFamily,
+    ]);
+    sessionFamilyMocks.get.mockResolvedValue(currentFamily);
+
+    const { getCurrentPath, result } = renderUseRouteSync(
+      "/sessions/arena-pi-agi-root",
+      {
+        selectedSession: currentRoot,
+        sessions: [currentRoot],
+        sessionsLoading: false,
+      },
+    );
+
+    await waitFor(() => {
+      expect(getCurrentPath()).toBe(
+        "/families/current-family/threads/pi-agi%3Aroot",
+      );
+      expect(result.current.selectedFamily?.family_id).toBe("current-family");
+    });
+  });
+
+  it("redirects a missing family deep link instead of loading forever", async () => {
+    const { getCurrentPath, result } = renderUseRouteSync(
+      "/families/missing/threads/root",
+      { selectedSession: null, sessions: [], sessionsLoading: false },
+    );
+
+    await waitFor(() => {
+      expect(getCurrentPath()).toBe("/");
+      expect(result.current.pendingSessionRoute).toBe(false);
     });
   });
 

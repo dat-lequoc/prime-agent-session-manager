@@ -399,6 +399,14 @@ impl WsAdapter {
             let ws_event = WsEvent { event_type: "event".to_string(), event: "sessions-changed".to_string(), payload };
             let _ = event_tx.send(ws_event);
         });
+
+        let app_handle = self.app_state.app_handle.clone();
+        let event_tx = self.app_state.event_tx.clone();
+        app_handle.listen("session-families-changed", move |event| {
+            let payload = serde_json::from_str::<Value>(event.payload()).unwrap_or(Value::Null);
+            let ws_event = WsEvent { event_type: "event".to_string(), event: "session-families-changed".to_string(), payload };
+            let _ = event_tx.send(ws_event);
+        });
     }
 }
 

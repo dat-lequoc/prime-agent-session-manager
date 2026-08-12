@@ -11,6 +11,7 @@ export const ROUTES = {
   SESSIONS: '/',
   SESSION_DETAIL: '/sessions/:sessionId',
   NATIVE_SESSION_DETAIL: '/open/:nativeSessionId',
+  SESSION_FAMILY_THREAD: '/families/:familyId/threads/:threadId',
 
   // Project view
   PROJECTS: '/projects',
@@ -30,6 +31,7 @@ export type RouteKey = keyof typeof ROUTES;
 export type ParsedRoute =
   | { route: 'session'; sessionId: string }
   | { route: 'native-session'; nativeSessionId: string }
+  | { route: 'session-family'; familyId: string; threadId: string }
   | { route: 'project'; projectPath: string | null }
   | { route: 'feature'; feature: 'dashboard' | 'settings' | 'terminal' }
   | { route: 'app'; path: string }
@@ -53,6 +55,14 @@ export function parseRoute(pathname: string): ParsedRoute {
 
   if (parts[0] === 'open' && parts[1]) {
     return { route: 'native-session', nativeSessionId: decodeURIComponent(parts[1]) };
+  }
+
+  if (parts[0] === 'families' && parts[1] && parts[2] === 'threads' && parts[3]) {
+    return {
+      route: 'session-family',
+      familyId: decodeURIComponent(parts[1]),
+      threadId: decodeURIComponent(parts[3]),
+    };
   }
 
   if (parts[0] === 'projects') {
@@ -79,6 +89,10 @@ export function buildSessionUrl(sessionId: string): string {
 
 export function buildNativeSessionUrl(nativeSessionId: string): string {
   return `/open/${encodeURIComponent(nativeSessionId)}`;
+}
+
+export function buildSessionFamilyUrl(familyId: string, threadId: string): string {
+  return `/families/${encodeURIComponent(familyId)}/threads/${encodeURIComponent(threadId)}`;
 }
 
 /**

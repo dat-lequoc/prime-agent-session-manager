@@ -3,7 +3,10 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SessionEntry } from "@/types";
-import { useSessionViewerData } from "./useSessionViewerData";
+import {
+  readSessionChunkWithTransientRetry,
+  useSessionViewerData,
+} from "./useSessionViewerData";
 import {
   getPreviewEntriesFromDB,
   readRuntimeSessionChunk,
@@ -74,6 +77,47 @@ describe("useSessionViewerData", () => {
     expect(result.current.entries).toHaveLength(1);
     expect(result.current.entries[0].id).toBe("msg-1");
     expect(result.current.activeEntryId).toBe("msg-1");
+  });
+
+  it("retries a transient missing JSONL during completion-time handoff", async () => {
+    vi.mocked(readRuntimeSessionChunk)
+      .mockRejectedValueOnce(
+        new Error(
+          "Failed to open session file: No such file or directory (os error 2)",
+        ),
+      )
+      .mockResolvedValueOnce({
+        content: "",
+        next_offset: 0,
+        file_size: 0,
+        has_more: false,
+      });
+
+    await expect(
+      readSessionChunkWithTransientRetry(
+        "/tmp/session-handoff.jsonl",
+        0,
+        384 * 1024,
+        [0],
+      ),
+    ).resolves.toMatchObject({ has_more: false });
+    expect(readRuntimeSessionChunk).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not retry non-transient session load errors", async () => {
+    vi.mocked(readRuntimeSessionChunk).mockRejectedValueOnce(
+      new Error("Permission denied"),
+    );
+
+    await expect(
+      readSessionChunkWithTransientRetry(
+        "/tmp/session-denied.jsonl",
+        0,
+        384 * 1024,
+        [0],
+      ),
+    ).rejects.toThrow("Permission denied");
+    expect(readRuntimeSessionChunk).toHaveBeenCalledTimes(1);
   });
 
   it("renders the first JSONL chunk before top-mode hydration finishes", async () => {

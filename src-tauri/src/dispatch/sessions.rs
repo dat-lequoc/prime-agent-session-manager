@@ -21,6 +21,8 @@ pub(super) const COMMANDS: &[&str] = &[
     "convert_session_format",
     "get_session_by_path",
     "get_session_by_id",
+    "list_session_families",
+    "get_session_family",
     "delete_session",
     "delete_sessions",
     "export_session",
@@ -160,6 +162,15 @@ pub(super) async fn dispatch(app_state: &Option<DispatchAppState>, command: &str
                     let id = extract(payload, "id")?;
                     let result = crate::get_session_by_id(id).await?;
                     Ok(to_val(result, "serialize result")?)
+                }
+                "list_session_families" => {
+                    let result = crate::list_session_families().await?;
+                    Ok(to_val(result, "serialize session families")?)
+                }
+                "get_session_family" => {
+                    let family_id = extract_optional_string(payload, "family_id").or_else(|| extract_optional_string(payload, "familyId")).ok_or_else(|| "Missing field: familyId".to_string())?;
+                    let result = crate::get_session_family(family_id).await?;
+                    Ok(to_val(result, "serialize session family")?)
                 }
                 "delete_session" => {
                     let path = extract(payload, "path")?;

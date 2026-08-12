@@ -42,10 +42,10 @@ pub(crate) async fn handle_sse(ConnectInfo(addr): ConnectInfo<SocketAddr>, State
         loop {
             match rx.recv().await {
                 Ok(ws_event) => {
-                    if ws_event.event == "sessions-changed" {
+                    if ws_event.event == "sessions-changed" || ws_event.event == "session-families-changed" {
                         let data = serde_json::to_string(&ws_event.payload).unwrap_or_default();
                         yield Ok::<_, Infallible>(
-                            SseEvent::default().event("sessions-changed").data(data)
+                            SseEvent::default().event(ws_event.event).data(data)
                         );
                     }
                 }

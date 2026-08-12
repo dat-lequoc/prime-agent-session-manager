@@ -87,6 +87,36 @@ interface SessionCacheItem {
 
 const SESSION_CONTENT_CACHE = new Map<string, SessionCacheItem>();
 const MAX_CACHE_SIZE = 5;
+const SESSION_FILE_RETRY_DELAYS_MS = [250, 500, 1000, 1500, 2000];
+
+function isTransientMissingSessionFileError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  return /No such file or directory|os error 2|ENOENT/i.test(error.message);
+}
+
+export async function readSessionChunkWithTransientRetry(
+  sessionPath: string,
+  offset: number,
+  maxBytes: number,
+  retryDelaysMs: number[] = SESSION_FILE_RETRY_DELAYS_MS,
+) {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await readRuntimeSessionChunk(sessionPath, offset, maxBytes);
+    } catch (error) {
+      const retryDelay = retryDelaysMs[attempt];
+      if (
+        retryDelay === undefined ||
+        !isTransientMissingSessionFileError(error)
+      ) {
+        throw error;
+      }
+      await new Promise<void>((resolve) => {
+        window.setTimeout(resolve, retryDelay);
+      });
+    }
+  }
+}
 
 function hasMessageEntries(entries: SessionEntry[]): boolean {
   return entries.some((entry) => entry.type === "message");
@@ -424,7 +454,11 @@ export function useSessionViewerData({
           }
         }
 
-        const chunk = await readRuntimeSessionChunk(sessionPath, 0, 384 * 1024);
+        const chunk = await readSessionChunkWithTransientRetry(
+          sessionPath,
+          0,
+          384 * 1024,
+        );
 
         let { entries: allEntries, lineCount: totalLineCount } =
           parseSessionEntriesWithLineCount(chunk.content);

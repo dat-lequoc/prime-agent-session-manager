@@ -437,6 +437,8 @@ fn main() {
             pi_session_manager::convert_session_format,
             pi_session_manager::get_session_by_path,
             pi_session_manager::get_session_by_id,
+            pi_session_manager::list_session_families,
+            pi_session_manager::get_session_family,
             pi_session_manager::search_sessions,
             pi_session_manager::search_sessions_fts,
             pi_session_manager::get_plugin_record,

@@ -35,6 +35,9 @@ export interface AppSessionViewerPaneProps extends Pick<
   | "resumeCommand"
   | "slots"
   | "initialEntryId"
+  | "sessionFamily"
+  | "selectedFamilyThreadId"
+  | "onFamilyThreadSelect"
 > {
   terminalFeatureEnabled?: boolean;
   terminalFeatureOpen?: boolean;
@@ -60,6 +63,9 @@ function AppSessionViewerPane({
   terminalFeatureEnabled = false,
   terminalFeatureOpen = false,
   onToggleTerminalFeature,
+  sessionFamily,
+  selectedFamilyThreadId,
+  onFamilyThreadSelect,
 }: AppSessionViewerPaneProps) {
   const { t } = useTranslation();
   const { getSessionSetting } = useSettings();
@@ -771,6 +777,9 @@ function AppSessionViewerPane({
       pluginTreeViews={treeViews}
       onActiveEntryIdChange={setActiveEntryId}
       onViewerControllerChange={setViewerController}
+      sessionFamily={sessionFamily}
+      selectedFamilyThreadId={selectedFamilyThreadId}
+      onFamilyThreadSelect={onFamilyThreadSelect}
     />
   );
 }

@@ -391,8 +391,11 @@ function App() {
     navigateToProjects,
     navigateToProject,
     navigateToPath,
+    navigateToSessionFamilyThread,
     pendingSessionRoute,
     pendingAppRoute,
+    selectedFamily,
+    selectedFamilyThreadId,
   } = useRouteSync({
     setSelectedSession,
     selectedSession,
@@ -1400,6 +1403,13 @@ function App() {
       terminalFeatureEnabled={!standaloneDatasetRuntime && terminalConfig.enabled}
       terminalFeatureOpen={showTerminal && activeTerminalScopeKey === currentTerminalScope.key}
       onToggleTerminalFeature={toggleCurrentTerminalScope}
+      sessionFamily={selectedFamily}
+      selectedFamilyThreadId={selectedFamilyThreadId}
+      onFamilyThreadSelect={
+        selectedFamily
+          ? (threadId) => navigateToSessionFamilyThread(selectedFamily.family_id, threadId)
+          : undefined
+      }
     />
   );
 

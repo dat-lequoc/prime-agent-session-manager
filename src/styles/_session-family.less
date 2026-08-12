@@ -1,0 +1,13 @@
+.session-family-panel { border-bottom: 1px solid rgb(var(--color-border)); background: rgb(var(--color-secondary) / 0.18); }
+.session-family-heading { display: flex; align-items: baseline; gap: .5rem; padding: .45rem .75rem .25rem; }
+.session-family-title { color: rgb(var(--color-foreground)); font-size: .75rem; font-weight: 600; }
+.session-family-summary, .session-family-thread-meta { color: rgb(var(--color-muted-foreground)); font-size: .6875rem; }
+.session-family-tree { max-height: 12rem; overflow: auto; padding-bottom: .35rem; }
+.session-family-thread { display: flex; width: 100%; align-items: center; gap: .5rem; border: 0; background: transparent; padding-block: .35rem; padding-right: .75rem; color: rgb(var(--color-foreground)); text-align: left; transition: background-color 120ms ease; }
+.session-family-thread:hover { background: rgba(var(--accent-rgb), .18); }
+.session-family-thread-selected { background: rgba(var(--accent-rgb), .28); }
+.session-family-thread-icon { display: inline-flex; color: rgb(var(--color-muted-foreground)); }
+.session-family-thread-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; }
+.session-family-thread-label, .session-family-thread-meta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.session-family-thread-label { font-size: .75rem; font-weight: 500; }
+.session-family-thread-open { flex: none; color: rgb(var(--color-muted-foreground)); }
