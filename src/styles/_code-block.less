@@ -175,6 +175,33 @@
   font-feature-settings: inherit;
 }
 
+// Session transcript wrapping is opt-in. Keeping the preference on the viewer
+// boundary prevents code styles from affecting the integrated xterm terminal.
+.session-viewer[data-code-wrap="true"] {
+  .code-line-numbers {
+    display: none;
+  }
+
+  .code-block-content {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .code-block {
+    min-width: 0;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .code-block code {
+    white-space: inherit;
+    overflow-wrap: inherit;
+    word-break: inherit;
+  }
+}
+
 // Scrollbar for code blocks
 .code-block-content::-webkit-scrollbar,
 .code-block::-webkit-scrollbar {

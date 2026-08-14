@@ -497,6 +497,8 @@ export const settings = {
     codeFontWeight: "代码字重",
     codeLigatures: "代码连字",
     codeLigaturesDesc: "在代码块中渲染 =>、->、!== 等连字",
+    codeWrap: "代码与工具块自动换行",
+    codeWrapDesc: "对代码块、工具参数和结果中的长行自动换行，而非水平滚动",
     searchThemes: "搜索主题",
     searchFonts: "搜索字体",
     themePickerHint: "搜索主题并对比色条后再应用",

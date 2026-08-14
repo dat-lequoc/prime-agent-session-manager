@@ -248,4 +248,23 @@ describe('saveAppSettings', () => {
     })
     expect(settings.subagents.forcedProvider).toBeUndefined()
   })
+
+  it('defaults session code and tool block wrapping off for older settings', async () => {
+    const { loadAppSettings } = await import('./settingsApi')
+
+    invokeMock.mockImplementation(async (command: string) => {
+      if (command === 'load_app_settings') {
+        return {
+          appearance: {
+            theme: 'dark',
+          },
+        }
+      }
+      return undefined
+    })
+
+    const settings = await loadAppSettings()
+
+    expect(settings.appearance.codeWrap).toBe(false)
+  })
 })

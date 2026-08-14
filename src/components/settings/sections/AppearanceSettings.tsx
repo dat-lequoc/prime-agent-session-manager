@@ -921,6 +921,18 @@ export default function AppearanceSettings({ settings, onUpdate }: AppearanceSet
             onChange={(v) => onUpdate('appearance', 'codeLigatures', v)}
             searchKey="appearance-codeLigatures"
           />
+          <SettingsToggleRow
+            className="px-0 py-1.5"
+            toggleSize="sm"
+            title={t('settings.appearance.codeWrap', 'Wrap Code & Tool Blocks')}
+            description={t(
+              'settings.appearance.codeWrapDesc',
+              'Wrap long lines in code blocks, tool arguments, and results instead of horizontal scrolling'
+            )}
+            checked={settings.appearance.codeWrap ?? false}
+            onChange={(v) => onUpdate('appearance', 'codeWrap', v)}
+            searchKey="appearance-codeWrap"
+          />
         </SettingsCard>
 
         <SettingsCard contentClassName="divide-y divide-border/40">

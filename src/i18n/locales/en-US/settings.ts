@@ -524,6 +524,9 @@ export const settings = {
     codeFontWeight: "Code Font Weight",
     codeLigatures: "Code Ligatures",
     codeLigaturesDesc: "Render font ligatures like =>, ->, !== in code blocks",
+    codeWrap: "Wrap Code & Tool Blocks",
+    codeWrapDesc:
+      "Wrap long lines in code blocks, tool arguments, and results instead of horizontal scrolling",
     searchThemes: "Search themes",
     searchFonts: "Search fonts",
     themePickerHint: "Search themes and compare color strips before applying",
