@@ -119,6 +119,7 @@ view implementations live under `extensions/psm-*`.
 |-----------|-------------|
 | `SessionViewer.tsx` | Main viewer |
 | `SessionViewerMessages.tsx` | Message list |
+| `TrajectoryInspector.tsx` | Default dense turn/tool ledger with click-selected detail inspector |
 | `SessionBadge.tsx` | Session badge |
 | `SessionContextMenu.tsx` | Right-click menu |
 | `SessionEntryRenderer.tsx` | Entry renderer |
