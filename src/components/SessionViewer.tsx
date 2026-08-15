@@ -122,7 +122,7 @@ function SessionViewerContent({
   resumeCommand,
   initialEntryId,
   previewMode = false,
-  previewVariant = "conversation",
+  previewVariant = "trajectory",
   slots,
   layoutSlots,
   mainViewSlot,

@@ -27,6 +27,9 @@ import type { ScrollMarker } from "@/hooks/useSessionScrollMarkers";
 import type { LegacySessionStats, SessionEntry, SessionInfo } from "@/types";
 import SessionEntryRenderer from "./SessionEntryRenderer";
 import ConversationPreviewMessages from "./ConversationPreviewMessages";
+import TrajectoryInspector, {
+  type TrajectoryInspectorRef,
+} from "./TrajectoryInspector";
 import type { SessionPreviewVariant } from "./previewTypes";
 import NewMessagesButton from "./NewMessagesButton";
 import ScrollToBottomButton from "./ScrollToBottomButton";
@@ -130,13 +133,14 @@ const SessionViewerMessages = forwardRef<
   isScrollMarkersFeatureEnabled,
   isLive,
   previewMode = false,
-  previewVariant = "conversation",
+  previewVariant = "trajectory",
   scrollContainerRef,
   scrollContentRef,
 }: SessionViewerMessagesProps, ref) {
   const { t } = useTranslation();
   const { ensureToolExpandedForSearch } = useSessionView();
   const showLoadingSpinner = useDelayedLoading(loading);
+  const trajectoryRef = useRef<TrajectoryInspectorRef>(null);
 
   const {
     messagesContainerRef,
@@ -160,7 +164,8 @@ const SessionViewerMessages = forwardRef<
     isAtBottomRef,
     onReachBottom,
     previewMode,
-    handlesScrollTarget: previewVariant === "conversation",
+    handlesScrollTarget:
+      previewVariant === "conversation" || previewVariant === "trajectory",
   });
 
   const virtualRows = rowVirtualizer.getVirtualItems();
@@ -248,6 +253,9 @@ const SessionViewerMessages = forwardRef<
   });
 
   useEffect(() => {
+    if (previewVariant === "trajectory") {
+      return;
+    }
     if (!externalRevealTarget || !messagesContainerRef.current) {
       return;
     }
@@ -332,9 +340,21 @@ const SessionViewerMessages = forwardRef<
 
   // Expose methods
   useImperativeHandle(ref, () => ({
-    scrollToTop,
-    scrollToBottom,
-  }));
+    scrollToTop: () => {
+      if (previewVariant === "trajectory") {
+        trajectoryRef.current?.scrollToTop();
+        return;
+      }
+      scrollToTop();
+    },
+    scrollToBottom: () => {
+      if (previewVariant === "trajectory") {
+        trajectoryRef.current?.scrollToBottom();
+        return;
+      }
+      scrollToBottom();
+    },
+  }), [previewVariant, scrollToBottom, scrollToTop]);
 
   // While loading: keep layout with a flex-1 placeholder; only show the
   // spinner after 500ms (useDelayedLoading) to avoid flash on fast switches.
@@ -347,6 +367,28 @@ const SessionViewerMessages = forwardRef<
 
   if (error) {
     return <SessionMessagesErrorState title={t("session.error")} error={error} />;
+  }
+
+  if (previewVariant === "trajectory") {
+    return (
+      <div className="flex-1 relative min-h-0 overflow-hidden">
+        <TrajectoryInspector
+          ref={trajectoryRef}
+          entries={renderableEntries}
+          toolResultByCallId={toolResultByCallId}
+          searchQuery={searchQuery}
+          currentSearchTarget={currentSearchTarget}
+          streamingId={streamingId}
+          scrollTargetId={scrollTargetId}
+          setScrollTargetId={setScrollTargetId}
+          externalRevealTarget={externalRevealTarget}
+          onExternalRevealHandled={onExternalRevealHandled}
+          hasNewMessages={hasNewMessages}
+          setHasNewMessages={setHasNewMessages}
+          isAtBottomRef={isAtBottomRef}
+        />
+      </div>
+    );
   }
 
   return (

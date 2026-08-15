@@ -770,7 +770,7 @@ function AppSessionViewerPane({
       customCommand={customCommand}
       resumeCommand={resumeCommand}
       initialEntryId={initialEntryId}
-      previewVariant={conversationModeEnabled ? "conversation" : "none"}
+      previewVariant={conversationModeEnabled ? "trajectory" : "none"}
       slots={mergedSlots}
       layoutSlots={layoutSlots}
       mainViewSlot={mainViewSlot}

@@ -18,6 +18,38 @@ afterEach(() => {
   cleanup()
 })
 
+// Node 25 exposes an experimental `localStorage` global that is unusable when
+// no `--localstorage-file` path is configured. That global can win over
+// jsdom's implementation, so replace it with a deterministic in-memory store
+// whenever the Storage API is incomplete.
+if (typeof globalThis.localStorage?.getItem !== 'function') {
+  const values = new Map<string, string>()
+  const localStorageStub: Storage = {
+    get length() {
+      return values.size
+    },
+    clear() {
+      values.clear()
+    },
+    getItem(key: string) {
+      return values.get(key) ?? null
+    },
+    key(index: number) {
+      return [...values.keys()][index] ?? null
+    },
+    removeItem(key: string) {
+      values.delete(key)
+    },
+    setItem(key: string, value: string) {
+      values.set(key, String(value))
+    },
+  }
+  Object.defineProperty(globalThis, 'localStorage', {
+    configurable: true,
+    value: localStorageStub,
+  })
+}
+
 if (typeof globalThis.ResizeObserver === 'undefined') {
   class ResizeObserverStub {
     observe(): void {}

@@ -196,11 +196,11 @@ export default function SessionGeneralSettings({ settings, onUpdate }: SessionSe
             <SettingsToggleRow
               title={t(
                 "settings.session.conversationModeEnabled",
-                "Conversation mode",
+                "Trajectory inspector",
               )}
               description={t(
                 "settings.session.conversationModeEnabledHelp",
-                "Group each user request with its final assistant response and fold intermediate thinking/tool steps in the main session view",
+                "Use the dense turn and tool ledger with a click-selected detail inspector as the default session view",
               )}
               checked={settings.session.conversationModeEnabled !== false}
               onChange={(checked) =>
